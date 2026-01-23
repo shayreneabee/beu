@@ -24,3 +24,73 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* ===== BEU polish ===== */
+@keyframes beu-rotate-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes beu-pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.015); opacity: 0.96; }
+}
+
+@keyframes beu-shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.beu-rotate-slow {
+  animation: beu-rotate-slow 36s linear infinite;
+  transform-origin: center;
+}
+
+.beu-rotate-slow-rev {
+  animation: beu-rotate-slow 44s linear infinite reverse;
+  transform-origin: center;
+}
+
+.beu-pulse-soft {
+  animation: beu-pulse-soft 3.6s ease-in-out infinite;
+}
+
+.beu-shimmer {
+  background-size: 200% 200%;
+  animation: beu-shimmer 8s ease infinite;
+}
+
+/* ===== BEU polish ===== */
+@keyframes beu-rotate-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes beu-pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.015); opacity: 0.96; }
+}
+
+@keyframes beu-shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.beu-rotate-slow {
+  animation: beu-rotate-slow 36s linear infinite;
+  transform-origin: center;
+}
+
+.beu-rotate-slow-rev {
+  animation: beu-rotate-slow 44s linear infinite reverse;
+  transform-origin: center;
+}
+
+.beu-pulse-soft {
+  animation: beu-pulse-soft 3.6s ease-in-out infinite;
+}
+
+.beu-shimmer {
+  background-size: 200% 200%;
+  animation: beu-shimmer 8s ease infinite;
+}
+
