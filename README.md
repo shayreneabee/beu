@@ -1,21 +1,17 @@
-# BEU (Black Europe) — Cultural Compass
+# BEU 🌍
 
-BEU helps Black people discover where to connect, bond, and belong.
-The experience is built around a compass with four pillars:
+A modern web application designed to explore culture, travel, and experiences through a structured compass-style interface.
 
-- Promoter of the Month
-- Place of the Month
-- Cuisine of the Month
-- What’s Happening Near Me (live feed)
-
-## Tech
-- Next.js (App Router) + TypeScript
+## 🛠 Tech Stack
+- Next.js (App Router)
+- TypeScript
 - Tailwind CSS
-- lucide-react icons
 
-## Run locally
-```bash
+## 🚀 Features
+- Component-based UI
+- Compass navigation system
+- Dynamic sections (Cuisine, Places, Events)
+
+## ▶️ Run Locally
 npm install
 npm run dev
-
-# beu
