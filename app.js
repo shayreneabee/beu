@@ -1,15 +1,8 @@
 const liveAppUrls = {
-  letsCook: "https://lets-cook.onrender.com",
-  findTheBeat: "https://find-the-beat.onrender.com",
-  beu: "https://beu-pi.vercel.app/",
-  secondChance: "https://brentco.netlify.app/second-chance"
-};
-
-const githubUrls = {
-  letsCook: "https://github.com/shayreneabee/Lets-Cook",
-  findTheBeat: "https://github.com/shayreneabee/find-the-beat",
-  beu: "https://github.com/shayreneabee/BEU",
-  secondChance: "https://github.com/shayreneabee/second-chance-careers"
+  letsCook: "#lets-cook",
+  findTheBeat: "#find-the-beat",
+  beu: "#beu",
+  secondChance: "#second-chance"
 };
 
 let categories = [
@@ -32,13 +25,10 @@ const ecosystemApps = [
     description: "Southern fresh meets global flavor through recipes, Cook 101 lessons, Shay's Kitchen, hosting ideas, and meal planning.",
     route: "#lets-cook",
     externalUrl: liveAppUrls.letsCook,
-    repoUrl: githubUrls.letsCook,
-    status: "Live prototype",
+    status: "Launch ready",
     links: [
-      ["Open Live App", liveAppUrls.letsCook],
-      ["Preview Here", "#lets-cook"],
-      ["Shay's Kitchen", "#kitchen"],
-      ["GitHub", githubUrls.letsCook]
+      ["Open Let's Cook", "#lets-cook"],
+      ["Shay's Kitchen", "#kitchen"]
     ]
   },
   {
@@ -50,12 +40,9 @@ const ecosystemApps = [
     description: "A music-centered app with bold orange movement, playlists, lessons, community showcases, and creative tools.",
     route: "#find-the-beat",
     externalUrl: liveAppUrls.findTheBeat,
-    repoUrl: githubUrls.findTheBeat,
-    status: "Live app",
+    status: "Render pending",
     links: [
-      ["Open Live App", liveAppUrls.findTheBeat],
-      ["Preview Here", "#find-the-beat"],
-      ["GitHub", githubUrls.findTheBeat]
+      ["Preview Here", "#find-the-beat"]
     ]
   },
   {
@@ -67,12 +54,9 @@ const ecosystemApps = [
     description: "A polished blue navigation app for cultural discovery: promoter spotlights, cuisine features, places to visit, and a yearly community calendar.",
     route: "#beu",
     externalUrl: liveAppUrls.beu,
-    repoUrl: githubUrls.beu,
-    status: "Live compass",
+    status: "Render pending",
     links: [
-      ["Open Live BEU", liveAppUrls.beu],
-      ["Preview Here", "#beu"],
-      ["GitHub", githubUrls.beu]
+      ["Preview Here", "#beu"]
     ]
   },
   {
@@ -84,12 +68,9 @@ const ecosystemApps = [
     description: "A supportive professional app for jobs, training, resumes, resources, and people rebuilding with purpose.",
     route: "#second-chance",
     externalUrl: liveAppUrls.secondChance,
-    repoUrl: githubUrls.secondChance,
-    status: "Live careers",
+    status: "Render pending",
     links: [
-      ["Open Live App", liveAppUrls.secondChance],
-      ["Preview Here", "#second-chance"],
-      ["GitHub", githubUrls.secondChance]
+      ["Preview Here", "#second-chance"]
     ]
   }
 ];
@@ -688,7 +669,7 @@ function platformHero() {
         <img class="platform-wordmark" src="assets/brent-co-wordmark.png" alt="Brent & Co." />
         <p class="eyebrow">Brent & Co. ecosystem</p>
         <h1>One welcoming home for every Brent & Co. platform.</h1>
-        <p>Start here, then move into cooking, music, cultural discovery, or career support with links that open the real live apps.</p>
+        <p>Start here, then move into cooking, music, cultural discovery, or career support. Live launch links stay private until each Render service points at the correct app.</p>
         <div class="hero-actions">
           <a class="small-button" href="#storefront">View All Platforms</a>
           <a class="small-button secondary" href="#lets-cook">Preview Let's Cook</a>
@@ -714,8 +695,8 @@ function renderPlatformHome() {
     </section>
     <section class="cream-section direct-link-section">
       <div class="section-heading">
-        <p class="eyebrow">Correct links</p>
-        <h2>Live destinations</h2>
+        <p class="eyebrow">Launch status</p>
+        <h2>Deployment destinations</h2>
       </div>
       <div class="direct-link-grid">
         ${ecosystemApps.map(platformLinkCard).join("")}
@@ -727,9 +708,9 @@ function renderPlatformHome() {
         <h2>A platform family, not random separate projects</h2>
       </div>
       <div class="system-grid">
-        <article><strong>Live app first</strong><span>Storefront cards open the deployed apps so visitors land where they are supposed to go.</span></article>
+        <article><strong>Live app first</strong><span>Storefront cards will open the deployed apps once the correct Render services are connected.</span></article>
         <article><strong>Preview preserved</strong><span>The Brent & Co. prototype still includes local previews for visual direction and future planning.</span></article>
-        <article><strong>GitHub connected</strong><span>Each brand card includes its source repo for development, deployment, and handoff work.</span></article>
+        <article><strong>Private source</strong><span>Repository links stay out of the public app experience while development stays organized behind the scenes.</span></article>
       </div>
     </section>
   `;
@@ -822,8 +803,7 @@ function renderFindTheBeatHome() {
         <h1>Find the rhythm of a city, a scene, and a creative community.</h1>
         <p>${currentApp.description}</p>
         <div class="hero-actions">
-          <a class="small-button" ${linkAttrs(liveAppUrls.findTheBeat)}>Open Live App</a>
-          <a class="small-button secondary" ${linkAttrs(githubUrls.findTheBeat)}>GitHub Repo</a>
+          <a class="small-button" ${linkAttrs(liveAppUrls.findTheBeat)}>Preview App</a>
           <a class="small-button secondary" href="#home">Back to Brent & Co.</a>
           <a class="small-button secondary" href="#beu-section/scene">Connect to BEU Scene</a>
         </div>
@@ -858,8 +838,7 @@ function renderSecondChanceHome() {
         <h1>Career rebuilding with dignity, clarity, and momentum.</h1>
         <p>${currentApp.description}</p>
         <div class="hero-actions">
-          <a class="small-button" ${linkAttrs(liveAppUrls.secondChance)}>Open Live App</a>
-          <a class="small-button secondary" ${linkAttrs(githubUrls.secondChance)}>GitHub Repo</a>
+          <a class="small-button" ${linkAttrs(liveAppUrls.secondChance)}>Preview App</a>
           <a class="small-button secondary" href="#home">Back to Brent & Co.</a>
           <a class="small-button secondary" href="#beu-profile">Trust Profile Pattern</a>
         </div>
@@ -900,8 +879,7 @@ function renderBeuHome() {
         <h1>Your cultural compass wherever you land</h1>
         <p>Explore, connect, and bond through monthly cultural picks, live “near me” updates, food, places, people, and events.</p>
         <div class="hero-actions">
-          <a class="small-button" ${linkAttrs(liveAppUrls.beu)}>Open Live BEU</a>
-          <a class="small-button secondary" ${linkAttrs(githubUrls.beu)}>GitHub Repo</a>
+          <a class="small-button" ${linkAttrs(liveAppUrls.beu)}>Preview BEU</a>
           <a class="small-button secondary" href="#home">Back to Brent & Co.</a>
           <a class="small-button secondary" href="#beu-profile">Community Trust</a>
         </div>
@@ -1697,9 +1675,8 @@ function appCard(item) {
         </div>
       </a>
       <div class="app-card-actions">
-        <a class="small-button" ${linkAttrs(item.externalUrl || item.route)}>Live App</a>
+        <a class="small-button" ${linkAttrs(item.externalUrl || item.route)}>Open</a>
         <a class="small-button secondary" href="${item.route}">Preview</a>
-        <a class="small-button secondary" ${linkAttrs(item.repoUrl)}>GitHub</a>
       </div>
     </article>
   `;
