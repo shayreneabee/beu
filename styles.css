@@ -2237,28 +2237,44 @@ select {
 
 .socials {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
 .socials a {
   display: grid;
   place-items: center;
-  width: 58px;
+  width: 64px;
   aspect-ratio: 1;
-  border-radius: 50%;
-  background: #1f61af;
-  color: white;
-  font-size: 2rem;
-  font-weight: 800;
+  border: 2px solid rgba(44, 26, 16, 0.16);
+  border-radius: 18px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 900;
   text-transform: uppercase;
+  box-shadow: var(--soft-shadow);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.socials a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(40, 33, 21, 0.16);
 }
 
 .socials a:nth-child(2) {
-  background: #20a5dc;
+  background: #efbd5a;
+  color: var(--ink);
 }
 
 .socials a:nth-child(3) {
-  background: #d91e2c;
+  background: #f07a2f;
+  color: white;
+}
+
+.socials a:nth-child(4) {
+  background: #35a66c;
+  color: white;
 }
 
 .home-fab {
@@ -2513,6 +2529,7 @@ select {
 
   .socials a {
     width: 48px;
-    font-size: 1.6rem;
+    border-radius: 14px;
+    font-size: 0.64rem;
   }
 }
