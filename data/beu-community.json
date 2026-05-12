@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "trustModel": {
+    "note": "Prototype community trust layer. Production should require authenticated accounts, moderation, anti-spam controls, and admin approval.",
+    "futureTables": [
+      "users",
+      "profiles",
+      "reviews",
+      "ratings",
+      "recommendations",
+      "savedPlaces",
+      "badges",
+      "reports",
+      "adminReviews",
+      "verificationRequests"
+    ],
+    "badges": ["Local Guide", "Culture Scout", "Food Explorer", "Verified Reviewer", "Community Builder"]
+  },
+  "currentUser": {
+    "id": "shay",
+    "avatar": "assets/logo.png",
+    "displayName": "Shay",
+    "homeCity": "Chicago",
+    "homeCountry": "USA",
+    "bio": "Building Brent & Co. as a warm ecosystem for food, culture, creativity, travel, and community connection.",
+    "favoriteCategories": ["Food", "Diaspora culture", "Nightlife", "Heritage", "Community"],
+    "badges": ["Culture Scout", "Food Explorer", "Community Builder"],
+    "verifiedUser": false
+  },
+  "reviews": [
+    {
+      "id": "review-berlin-soul-kitchen",
+      "placeId": "berlin-soul-kitchen",
+      "userId": "shay",
+      "overallRating": 5,
+      "foodRating": 5,
+      "serviceRating": 4,
+      "atmosphereRating": 5,
+      "cultureRating": 5,
+      "safetyRating": 5,
+      "review": "Sample review: warm, welcoming, and exactly the kind of food-centered cultural listing BEU should elevate.",
+      "visitDate": "2026-05-01",
+      "tags": ["Black-centered", "great for solo travelers", "local favorite", "hidden gem"],
+      "experienceType": "Black-centered",
+      "createdAt": "2026-05-08T00:00:00.000Z"
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "rec-diaspora-book-cafe",
+      "placeName": "Diaspora Book Cafe",
+      "category": "Cafe/Culture",
+      "address": "Sample address, Paris",
+      "website": "",
+      "why": "A sample community recommendation for a place that blends books, coffee, culture, and conversation.",
+      "tags": ["Black-centered", "Art", "Community", "tourist friendly"],
+      "submittedBy": "shay",
+      "status": "pending",
+      "createdAt": "2026-05-08T00:00:00.000Z"
+    }
+  ],
+  "savedPlaces": ["berlin-soul-kitchen", "paris-diaspora-table"],
+  "reports": []
+}

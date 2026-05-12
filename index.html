@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BEU Cultural Compass</title>
+    <meta name="theme-color" content="#087d15" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#beu" aria-label="BEU home">
+        <img src="assets/beu-logo.jpg" alt="BEU" />
+      </a>
+      <div class="active-app-mark" aria-live="polite">
+        <img src="assets/beu-logo.jpg" alt="" />
+        <span>BEU</span>
+      </div>
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#beu" data-route="beu">Home</a>
+        <a href="#beu-section/north-star" data-route="beu">North Star</a>
+        <a href="#beu-section/essence" data-route="beu">Essence</a>
+        <a href="#beu-section/scene" data-route="beu">Scene</a>
+        <a href="#beu-profile" data-route="beu">Profile</a>
+      </nav>
+    </header>
+
+    <main id="app" tabindex="-1"></main>
+
+    <footer class="site-footer">
+      <div class="socials" aria-label="Social links">
+        <a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">f</a>
+        <a href="https://www.twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter">t</a>
+        <a href="https://www.pinterest.com" target="_blank" rel="noreferrer" aria-label="Pinterest">p</a>
+      </div>
+      <a class="home-fab" href="#beu" aria-label="Back to BEU home">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 11.5 12 4l9 7.5v8a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1z" />
+        </svg>
+      </a>
+    </footer>
+
+    <script src="services/beuSearchService.js"></script>
+    <script src="app.js"></script>
+    <script>
+      if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("sw.js").catch((error) => {
+            console.warn("Offline service worker registration failed.", error);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
