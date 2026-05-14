@@ -89,7 +89,7 @@ const beuSections = [
     id: "essence",
     label: "Essence",
     title: "Cuisine of the Month",
-    direction: "S",
+    direction: "E",
     text: "A cultural food feature that connects restaurants, home cooking, history, and the flavors that make a place feel alive.",
     detail: "Pair this with Let's Cook Ya'll recipes, restaurant picks, creator notes, and a monthly food story.",
     cta: "Taste the Feature"
@@ -98,7 +98,7 @@ const beuSections = [
     id: "scene",
     label: "Scene",
     title: "Places to Visit",
-    direction: "E",
+    direction: "S",
     text: "Curated destinations and local gems: lounges, museums, neighborhoods, pop-ups, cultural events, and weekend stops.",
     detail: "Map cards, saved places, trip ideas, and community-submitted recommendations.",
     cta: "Explore Places"

@@ -945,23 +945,23 @@ select {
 }
 
 .compass-card.scene {
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.compass-card.scene:hover {
-  transform: translateY(calc(-50% - 4px));
-}
-
-.compass-card.essence {
   bottom: 26px;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.compass-card.essence:hover {
+.compass-card.scene:hover {
   transform: translateX(-50%) translateY(-4px);
+}
+
+.compass-card.essence {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.compass-card.essence:hover {
+  transform: translateY(calc(-50% - 4px));
 }
 
 .compass-card.waypoint {
