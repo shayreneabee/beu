@@ -570,7 +570,7 @@ let beuState = {
   category: "all",
   tag: "all",
   query: "",
-  status: "Showing global BEU sample data. Choose a country, select a city, or use your location to personalize results."
+  status: "Showing global BEU sample data. Choose a country, select a city, or tap Use My Location to personalize nearby culture."
 };
 
 menuToggle.addEventListener("click", () => {
@@ -904,7 +904,7 @@ function renderBeuHome() {
           ${cityOptions.map((city) => `<option value="${city.id}" ${beuState.selectedCity === city.id ? "selected" : ""}>${city.label}</option>`).join("")}
         </select>
         <button class="small-button secondary" data-beu-city-search>Explore Area</button>
-        <span>Explore • Connect • Bond</span>
+        <span>${beuState.origin ? `GPS: ${beuState.origin.lat.toFixed(3)}, ${beuState.origin.lng.toFixed(3)}` : "Manual city search available"}</span>
       </div>
       <div class="compass-shell" aria-label="BEU compass navigation">
         <div class="compass-ring">
@@ -930,6 +930,7 @@ function renderBeuHome() {
       </div>
       <div class="beu-control-grid">
         <button class="small-button" data-beu-location>Use My Location</button>
+        <p class="location-helper">BEU will ask your browser for permission. If you say no, choose a country and city manually.</p>
         <input id="beuQuery" class="search-input" placeholder="Search restaurants, music, museums..." value="${beuState.query}" />
         <select id="beuCountryFilter" class="filter-select">
           <option value="all">All countries</option>
@@ -1341,6 +1342,7 @@ function renderBeuProfile() {
         <h2>Public Profile</h2>
         <form class="beu-form" data-beu-profile-form>
           <input name="avatar" value="${escapeHTML(user.avatar || "")}" placeholder="Avatar URL or local asset path" />
+          <label>Profile picture<input name="photo" type="file" accept="image/*" /></label>
           <input name="displayName" value="${escapeHTML(user.displayName || "")}" placeholder="Display name" required />
           <input name="homeCity" value="${escapeHTML(user.homeCity || "")}" placeholder="Home city" />
           <input name="homeCountry" value="${escapeHTML(user.homeCountry || "")}" placeholder="Home country" />
@@ -1922,7 +1924,7 @@ function handleClick(event) {
     beuState = {
       ...beuState,
       compass: beuSectionButton.dataset.beuSection,
-      status: `Showing ${compassLabel(beuSectionButton.dataset.beuSection)} listings near ${beuState.origin.label}.`
+      status: `Showing ${compassLabel(beuSectionButton.dataset.beuSection)} listings near ${beuState.locationLabel || beuState.origin?.label || "Global"}.`
     };
     renderBeuHome();
     document.querySelector(".beu-results")?.scrollIntoView({ behavior: "smooth" });
@@ -1994,7 +1996,7 @@ function requestBeuLocation() {
     return;
   }
 
-  beuState = { ...beuState, status: "Requesting location permission..." };
+  beuState = { ...beuState, status: "Requesting location permission. Your browser will ask before sharing GPS." };
   renderBeuHome();
 
   navigator.geolocation.getCurrentPosition(
@@ -2009,12 +2011,12 @@ function requestBeuLocation() {
         country: "all",
         selectedCity: "all",
         locationLabel: "your current location",
-        status: "Using your current location. Results combine BEU sample data with future API-ready search architecture."
+        status: "Using your current GPS location. Nearby places, cuisine, cultural spots, events, promoters, and venues are prioritized when sample data is close enough. Future Google Places/API keys should stay server-side."
       };
       renderBeuHome();
     },
     () => {
-      beuState = { ...beuState, status: "Location permission was not granted. Use city search instead." };
+      beuState = { ...beuState, status: "Location permission was not granted. Use the manual country and city search instead." };
       renderBeuHome();
     },
     { enableHighAccuracy: true, timeout: 10000 }
@@ -2107,6 +2109,26 @@ async function handleSubmit(event) {
   if (event.target.matches("[data-beu-profile-form]")) {
     event.preventDefault();
     const formData = new FormData(event.target);
+    const photo = formData.get("photo");
+    if (photo?.name) {
+      const photoData = new FormData();
+      photoData.append("photo", photo);
+      const photoResponse = await fetch("/api/beu/profile-photo", {
+        method: "POST",
+        body: photoData
+      });
+      const photoPayload = await photoResponse.json().catch(() => ({}));
+      if (!photoResponse.ok) {
+        beuSession = {
+          ...beuSession,
+          status: photoPayload.error || "BEU could not upload that profile picture."
+        };
+        renderBeuProfile();
+        return;
+      }
+      beuCommunity = photoPayload.community || beuCommunity;
+      formData.set("avatar", photoPayload.avatar || beuCommunity.currentUser?.avatar || "");
+    }
     beuCommunity.currentUser = {
       ...(beuCommunity.currentUser || {}),
       avatar: formData.get("avatar")?.toString().trim() || "assets/logo.png",

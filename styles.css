@@ -130,6 +130,62 @@ button.small-button,
   box-shadow: var(--bc-shadow);
 }
 
+/* BEU contrast pass for mobile readability and culture/travel polish. */
+.beu-hero {
+  background:
+    radial-gradient(circle at 78% 18%, rgba(239, 189, 90, 0.24), transparent 20rem),
+    linear-gradient(135deg, #082f5f, #0f5f93 58%, #e8f4ff);
+  color: #f8fbff;
+}
+
+.beu-hero p:not(.eyebrow),
+.beu-hero-copy p,
+.beu-city-panel span,
+.location-helper {
+  color: rgba(248, 251, 255, 0.9);
+}
+
+.beu-city-panel,
+.beu-controls,
+.beu-profile-card,
+.beu-section,
+.beu-section-detail,
+.beu-card {
+  border-color: rgba(7, 47, 95, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 48px rgba(8, 47, 95, 0.16);
+}
+
+.beu-controls h2,
+.beu-profile-card h2,
+.beu-section h2,
+.beu-section-detail h2 {
+  color: #082f5f;
+}
+
+.beu-controls p:not(.eyebrow),
+.beu-profile-card p,
+.beu-card p {
+  color: #31526f;
+}
+
+.beu-nav a,
+.beu-nav button,
+.small-button {
+  min-height: 46px;
+}
+
+.location-helper {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.beu-controls .location-helper {
+  color: #31526f;
+}
+
 .beu-card-photo,
 .detail-photo {
   border-radius: var(--bc-radius-sm);
