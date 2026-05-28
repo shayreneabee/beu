@@ -1,4 +1,4 @@
-const CACHE_NAME = "brent-co-platform-v6";
+const CACHE_NAME = "brent-co-platform-v7";
 
 const OFFLINE_ASSETS = [
   "./",
@@ -10,25 +10,20 @@ const OFFLINE_ASSETS = [
   "./data/recipes.json",
   "./data/beu-listings.json",
   "./data/beu-community.json",
-  "./assets/african-food.jpeg",
-  "./assets/american-food.jpeg",
-  "./assets/beautiful-chicken.jpeg",
   "./assets/beu-logo.jpg",
   "./assets/brent-co-logo.svg",
-  "./assets/cooking-family.jpeg",
+  "./assets/editorial-cajun-pasta.jpg",
+  "./assets/editorial-career-support.jpg",
+  "./assets/editorial-cooking-hero.jpg",
+  "./assets/editorial-culture-travel.jpg",
+  "./assets/editorial-kitchen-prep.jpg",
+  "./assets/editorial-music-collab.jpg",
+  "./assets/editorial-nightlife-culture.jpg",
   "./assets/find-the-beat-logo.svg",
   "./assets/find-the-beat-mockup.png",
-  "./assets/fresh-bread.jpeg",
-  "./assets/german-food.jpeg",
-  "./assets/indian-food.jpeg",
-  "./assets/ingredients.jpeg",
-  "./assets/kid-friendly.jpeg",
   "./assets/logo.png",
-  "./assets/pasta.jpeg",
-  "./assets/recipe-book.jpeg",
   "./assets/second-chance-logo.svg",
-  "./assets/second-chance-mockup.png",
-  "./assets/tandoori-chicken.jpeg"
+  "./assets/second-chance-mockup.png"
 ];
 
 self.addEventListener("install", (event) => {

@@ -136,7 +136,7 @@ const paths = [
     title: "Kid Chefs",
     eyebrow: "Small hands, big confidence",
     level: "Beginner",
-    image: "assets/kid-friendly.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     description: "Short, safe lessons for young cooks and families cooking together.",
     steps: ["Wash hands and set up a clean station", "Practice measuring and mixing", "Build no-fear snacks and simple dinners"],
     recipes: ["deviled-eggs", "orange-chicken", "charcuterie-boards"]
@@ -146,7 +146,7 @@ const paths = [
     title: "Amateur Home Chef",
     eyebrow: "Dinner gets easier from here",
     level: "Beginner to Intermediate",
-    image: "assets/cooking-family.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     description: "Everyday cooking skills for the person who wants dinner to feel less stressful.",
     steps: ["Learn seasoning and timing", "Cook proteins without guessing", "Plan two or three meals ahead"],
     recipes: ["shrimp-and-grits", "cajun-cream-pasta", "chicken-parmesan"]
@@ -156,7 +156,7 @@ const paths = [
     title: "Professional Mode",
     eyebrow: "Cook like you mean it",
     level: "Advanced",
-    image: "assets/ingredients.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     description: "Technique-driven recipes, hosting flow, plating, prep lists, and stronger kitchen rhythm.",
     steps: ["Prep like a line cook", "Build sauces and braises", "Plate and host with calm"],
     recipes: ["oxtails", "yakamein", "bourbon-praline-bread-pudding"]
@@ -164,12 +164,12 @@ const paths = [
 ];
 
 const cuisines = [
-  { id: "southern", name: "Southern Classics", image: "assets/fresh-bread.jpeg", blurb: "Comforting dishes, porch-table sides, slow braises, and big hospitality." },
-  { id: "creole", name: "Creole & Cajun", image: "assets/pasta.jpeg", blurb: "New Orleans flavor, seafood, spice, rice, roux, and soulful one-pot meals." },
-  { id: "asian-inspired", name: "Asian Inspired", image: "assets/beautiful-chicken.jpeg", blurb: "Crisp, saucy, family-friendly dinners with bold pantry flavor." },
-  { id: "italian", name: "Italian Comfort", image: "assets/pasta.jpeg", blurb: "Pasta nights, red sauce, baked mains, and beginner-friendly classics." },
-  { id: "hosting", name: "Party & Hosting", image: "assets/recipe-book.jpeg", blurb: "Boards, bites, desserts, and dinner-party helpers that make people feel cared for." },
-  { id: "global", name: "Global Flavors", image: "assets/indian-food.jpeg", blurb: "A warm bridge from Southern kitchens to flavors from everywhere." }
+  { id: "southern", name: "Southern Classics", image: "assets/editorial-kitchen-prep.jpg", blurb: "Comforting dishes, porch-table sides, slow braises, and big hospitality." },
+  { id: "creole", name: "Creole & Cajun", image: "assets/editorial-cajun-pasta.jpg", blurb: "New Orleans flavor, seafood, spice, rice, roux, and soulful one-pot meals." },
+  { id: "asian-inspired", name: "Asian Inspired", image: "assets/editorial-cooking-hero.jpg", blurb: "Crisp, saucy, family-friendly dinners with bold pantry flavor." },
+  { id: "italian", name: "Italian Comfort", image: "assets/editorial-cajun-pasta.jpg", blurb: "Pasta nights, red sauce, baked mains, and beginner-friendly classics." },
+  { id: "hosting", name: "Party & Hosting", image: "assets/editorial-kitchen-prep.jpg", blurb: "Boards, bites, desserts, and dinner-party helpers that make people feel cared for." },
+  { id: "global", name: "Global Flavors", image: "assets/editorial-culture-travel.jpg", blurb: "A warm bridge from Southern kitchens to flavors from everywhere." }
 ];
 
 let recipes = [
@@ -178,7 +178,7 @@ let recipes = [
     title: "Yakamein",
     cuisine: "creole",
     category: "Southern Comfort",
-    image: "assets/recipe-book.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "50 min",
     level: "Intermediate",
     servings: 4,
@@ -192,7 +192,7 @@ let recipes = [
     title: "Shrimp and Grits with Green Beans",
     cuisine: "southern",
     category: "Southern Comfort",
-    image: "assets/american-food.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     time: "35 min",
     level: "Beginner",
     servings: 4,
@@ -206,7 +206,7 @@ let recipes = [
     title: "Braised Oxtails",
     cuisine: "southern",
     category: "Family Dinners",
-    image: "assets/german-food.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "3 hr",
     level: "Advanced",
     servings: 6,
@@ -220,7 +220,7 @@ let recipes = [
     title: "Orange Chicken",
     cuisine: "asian-inspired",
     category: "Kid-Friendly Cooking",
-    image: "assets/beautiful-chicken.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     time: "30 min",
     level: "Beginner",
     servings: 4,
@@ -234,7 +234,7 @@ let recipes = [
     title: "Cajun Cream Salmon Rotini Pasta",
     cuisine: "creole",
     category: "Quick Weeknight Meals",
-    image: "assets/pasta.jpeg",
+    image: "assets/editorial-cajun-pasta.jpg",
     time: "30 min",
     level: "Beginner",
     servings: 4,
@@ -248,7 +248,7 @@ let recipes = [
     title: "Chicken Parmesan",
     cuisine: "italian",
     category: "Family Dinners",
-    image: "assets/beautiful-chicken.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     time: "45 min",
     level: "Intermediate",
     servings: 4,
@@ -262,7 +262,7 @@ let recipes = [
     title: "Crab Rangoon",
     cuisine: "asian-inspired",
     category: "Party & Hosting",
-    image: "assets/recipe-book.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "35 min",
     level: "Intermediate",
     servings: 8,
@@ -276,7 +276,7 @@ let recipes = [
     title: "Deviled Eggs",
     cuisine: "southern",
     category: "Beginner Basics",
-    image: "assets/ingredients.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "25 min",
     level: "Beginner",
     servings: 12,
@@ -290,7 +290,7 @@ let recipes = [
     title: "Charcuterie Boards",
     cuisine: "hosting",
     category: "Party & Hosting",
-    image: "assets/fresh-bread.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "20 min",
     level: "Beginner",
     servings: 8,
@@ -304,7 +304,7 @@ let recipes = [
     title: "Bourbon Praline Bread Pudding",
     cuisine: "southern",
     category: "Party & Hosting",
-    image: "assets/fresh-bread.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "1 hr 15 min",
     level: "Intermediate",
     servings: 10,
@@ -347,7 +347,7 @@ recipes.push(
     title: "Roasted Broccoli, Zucchini, Red Onion, Cherry Tomatoes, and Sweet Potatoes",
     cuisine: "global",
     category: "Beginner Basics",
-    image: "assets/ingredients.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "40 min",
     level: "Beginner",
     servings: 4,
@@ -361,7 +361,7 @@ recipes.push(
     title: "White Chicken Chili / Southwest Chicken Soup",
     cuisine: "southern",
     category: "Family Dinners",
-    image: "assets/cooking-family.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     time: "45 min",
     level: "Beginner",
     servings: 6,
@@ -375,7 +375,7 @@ recipes.push(
     title: "General Tso-Style Chicken",
     cuisine: "asian-inspired",
     category: "Global Flavors",
-    image: "assets/beautiful-chicken.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     time: "35 min",
     level: "Intermediate",
     servings: 4,
@@ -389,7 +389,7 @@ recipes.push(
     title: "Cashew Chicken",
     cuisine: "asian-inspired",
     category: "Quick Weeknight Meals",
-    image: "assets/beautiful-chicken.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     time: "30 min",
     level: "Beginner",
     servings: 4,
@@ -403,7 +403,7 @@ recipes.push(
     title: "Fried Rice",
     cuisine: "asian-inspired",
     category: "Quick Weeknight Meals",
-    image: "assets/recipe-book.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "20 min",
     level: "Beginner",
     servings: 4,
@@ -417,7 +417,7 @@ recipes.push(
     title: "Rotel Dip",
     cuisine: "hosting",
     category: "Party & Hosting",
-    image: "assets/fresh-bread.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "20 min",
     level: "Beginner",
     servings: 10,
@@ -431,7 +431,7 @@ recipes.push(
     title: "Party Meatballs",
     cuisine: "hosting",
     category: "Party & Hosting",
-    image: "assets/german-food.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "35 min",
     level: "Beginner",
     servings: 10,
@@ -445,7 +445,7 @@ recipes.push(
     title: "Dessert Charcuterie Board",
     cuisine: "hosting",
     category: "Party & Hosting",
-    image: "assets/fresh-bread.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "25 min",
     level: "Beginner",
     servings: 10,
@@ -459,7 +459,7 @@ recipes.push(
     title: "Blackened Fish",
     cuisine: "creole",
     category: "Quick Weeknight Meals",
-    image: "assets/ingredients.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "25 min",
     level: "Intermediate",
     servings: 4,
@@ -473,7 +473,7 @@ recipes.push(
     title: "Tuscan Chicken",
     cuisine: "italian",
     category: "Family Dinners",
-    image: "assets/beautiful-chicken.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     time: "40 min",
     level: "Intermediate",
     servings: 4,
@@ -487,7 +487,7 @@ recipes.push(
     title: "Garlic Wings",
     cuisine: "southern",
     category: "Party & Hosting",
-    image: "assets/beautiful-chicken.jpeg",
+    image: "assets/editorial-cooking-hero.jpg",
     time: "50 min",
     level: "Beginner",
     servings: 6,
@@ -501,7 +501,7 @@ recipes.push(
     title: "Pineapple Fried Rice",
     cuisine: "asian-inspired",
     category: "Global Flavors",
-    image: "assets/recipe-book.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "25 min",
     level: "Beginner",
     servings: 4,
@@ -515,7 +515,7 @@ recipes.push(
     title: "Lamb Bone Broth / Soup Idea",
     cuisine: "global",
     category: "Family Dinners",
-    image: "assets/ingredients.jpeg",
+    image: "assets/editorial-kitchen-prep.jpg",
     time: "2 hr",
     level: "Advanced",
     servings: 6,
@@ -527,10 +527,10 @@ recipes.push(
 );
 
 const lessons = [
-  { id: "knife-skills", title: "Knife Skills", image: "assets/kid-friendly.jpeg", text: "Practice safe grips, stable cutting boards, and beginner-friendly cuts." },
-  { id: "seasoning", title: "Seasoning Without Fear", image: "assets/ingredients.jpeg", text: "Learn salt, acid, fat, heat, herbs, and tasting as you go." },
-  { id: "rice-grits-pasta", title: "Rice, Grits, and Pasta", image: "assets/pasta.jpeg", text: "Master the everyday bases that make dinner feel possible." },
-  { id: "hosting-flow", title: "Hosting Flow", image: "assets/fresh-bread.jpeg", text: "Prep lists, timing, serving pieces, and keeping guests comfortable." }
+  { id: "knife-skills", title: "Knife Skills", image: "assets/editorial-kitchen-prep.jpg", text: "Practice safe grips, stable cutting boards, and beginner-friendly cuts." },
+  { id: "seasoning", title: "Seasoning Without Fear", image: "assets/editorial-kitchen-prep.jpg", text: "Learn salt, acid, fat, heat, herbs, and tasting as you go." },
+  { id: "rice-grits-pasta", title: "Rice, Grits, and Pasta", image: "assets/editorial-cajun-pasta.jpg", text: "Master the everyday bases that make dinner feel possible." },
+  { id: "hosting-flow", title: "Hosting Flow", image: "assets/editorial-kitchen-prep.jpg", text: "Prep lists, timing, serving pieces, and keeping guests comfortable." }
 ];
 
 const hostingIdeas = [
@@ -1130,10 +1130,10 @@ function compassDisplay(value) {
 
 function beuImageFor(listing) {
   const category = `${listing.category} ${listing.tags?.join(" ") || ""}`.toLowerCase();
-  if (category.includes("food") || category.includes("restaurant") || category.includes("supper") || category.includes("caribbean")) return "assets/indian-food.jpeg";
-  if (category.includes("music") || category.includes("nightlife") || category.includes("event") || category.includes("festival")) return "assets/cooking-family.jpeg";
-  if (category.includes("art") || category.includes("heritage") || category.includes("museum")) return "assets/recipe-book.jpeg";
-  if (category.includes("market")) return "assets/ingredients.jpeg";
+  if (category.includes("food") || category.includes("restaurant") || category.includes("supper") || category.includes("caribbean")) return "assets/editorial-culture-travel.jpg";
+  if (category.includes("music") || category.includes("nightlife") || category.includes("event") || category.includes("festival")) return "assets/editorial-nightlife-culture.jpg";
+  if (category.includes("art") || category.includes("heritage") || category.includes("museum")) return "assets/editorial-culture-travel.jpg";
+  if (category.includes("market")) return "assets/editorial-kitchen-prep.jpg";
   return "assets/beu-logo.jpg";
 }
 
@@ -1521,7 +1521,7 @@ function renderKitchen() {
 
 function renderCook101() {
   app.innerHTML = `
-    ${hero("Cook 101", "Simple basics that make the kitchen feel calm: chopping, seasoning, timing, prep, and hosting flow.", "assets/kid-friendly.jpeg")}
+    ${hero("Cook 101", "Simple basics that make the kitchen feel calm: chopping, seasoning, timing, prep, and hosting flow.", "assets/editorial-kitchen-prep.jpg")}
     ${cookSubnav()}
     <section class="cream-section">
       <div class="lesson-grid">${lessons.map(lessonCard).join("")}</div>
@@ -1548,7 +1548,7 @@ function renderLesson(id) {
 
 function renderRecipes() {
   app.innerHTML = `
-    ${hero("Recipes", "Southern classics, quick weeknight meals, global flavor, family dinners, beginner basics, party bites, and kid-friendly cooking.", "assets/fresh-bread.jpeg")}
+    ${hero("Recipes", "Southern classics, quick weeknight meals, global flavor, family dinners, beginner basics, party bites, and kid-friendly cooking.", "assets/editorial-kitchen-prep.jpg")}
     ${cookSubnav()}
     <section class="band">
       <div class="toolbar search-toolbar">
@@ -1593,7 +1593,7 @@ function renderRecipe(id) {
 
 function renderPaths() {
   app.innerHTML = `
-    ${hero("Cooking Paths", "Choose the pace that fits your kitchen today: Kid Chefs, Amateur Home Chef, or Professional Mode.", "assets/cooking-family.jpeg")}
+    ${hero("Cooking Paths", "Choose the pace that fits your kitchen today: Kid Chefs, Amateur Home Chef, or Professional Mode.", "assets/editorial-cooking-hero.jpg")}
     ${cookSubnav()}
     <section class="cream-section"><div class="feature-grid">${paths.map(pathCard).join("")}</div></section>
   `;
@@ -1623,7 +1623,7 @@ function renderPlanner() {
   const plannedRecipes = recipes.filter((recipe) => planned.includes(recipe.id));
   const shoppingItems = [...new Set(plannedRecipes.flatMap((recipe) => recipe.ingredients))];
   app.innerHTML = `
-    ${hero("Meal Planner", "Answer the classic question: what can I cook? Save meals, plan your week, and build a shopping list.", "assets/ingredients.jpeg")}
+    ${hero("Meal Planner", "Answer the classic question: what can I cook? Save meals, plan your week, and build a shopping list.", "assets/editorial-kitchen-prep.jpg")}
     ${cookSubnav()}
     <section class="cream-section">
       <div class="planner-layout">
@@ -1647,7 +1647,7 @@ function renderPlanner() {
 
 function renderHosting() {
   app.innerHTML = `
-    ${hero("Hosting Ideas", "Menus, boards, bites, and desserts for making people feel at home.", "assets/fresh-bread.jpeg")}
+    ${hero("Hosting Ideas", "Menus, boards, bites, and desserts for making people feel at home.", "assets/editorial-kitchen-prep.jpg")}
     ${cookSubnav()}
     <section class="cream-section">
       <div class="hosting-grid">${hostingIdeas.map((idea) => `
