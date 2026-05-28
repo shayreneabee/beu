@@ -1,4 +1,4 @@
-const CACHE_NAME = "brent-co-platform-v1";
+const CACHE_NAME = "brent-co-platform-v2";
 
 const OFFLINE_ASSETS = [
   "./",

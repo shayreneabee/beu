@@ -1,8 +1,8 @@
 const liveAppUrls = {
-  letsCook: "#lets-cook",
-  findTheBeat: "#find-the-beat",
-  beu: "#beu",
-  secondChance: "#second-chance"
+  letsCook: "https://letscookyall.com/",
+  findTheBeat: "https://findthebeatmusic.com/",
+  beu: "https://beutravel.org/",
+  secondChance: "https://secondchancecareers.org/"
 };
 
 let categories = [
@@ -27,7 +27,7 @@ const ecosystemApps = [
     externalUrl: liveAppUrls.letsCook,
     status: "Launch ready",
     links: [
-      ["Open Let's Cook", "#lets-cook"],
+      ["Open Let's Cook", liveAppUrls.letsCook],
       ["Shay's Kitchen", "#kitchen"]
     ]
   },
@@ -40,8 +40,9 @@ const ecosystemApps = [
     description: "A music-centered app with bold orange movement, playlists, lessons, community showcases, and creative tools.",
     route: "#find-the-beat",
     externalUrl: liveAppUrls.findTheBeat,
-    status: "Render pending",
+    status: "Live",
     links: [
+      ["Launch Site", liveAppUrls.findTheBeat],
       ["Preview Here", "#find-the-beat"]
     ]
   },
@@ -54,8 +55,9 @@ const ecosystemApps = [
     description: "A polished blue navigation app for cultural discovery: promoter spotlights, cuisine features, places to visit, and a yearly community calendar.",
     route: "#beu",
     externalUrl: liveAppUrls.beu,
-    status: "Render pending",
+    status: "Live",
     links: [
+      ["Launch Site", liveAppUrls.beu],
       ["Preview Here", "#beu"]
     ]
   },
@@ -68,8 +70,9 @@ const ecosystemApps = [
     description: "A supportive professional app for jobs, training, resumes, resources, and people rebuilding with purpose.",
     route: "#second-chance",
     externalUrl: liveAppUrls.secondChance,
-    status: "Render pending",
+    status: "Live",
     links: [
+      ["Launch Site", liveAppUrls.secondChance],
       ["Preview Here", "#second-chance"]
     ]
   }
