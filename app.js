@@ -555,6 +555,11 @@ let beuCommunity = {
   savedPlaces: [],
   reports: []
 };
+let beuSession = {
+  authenticated: false,
+  user: null,
+  status: ""
+};
 let beuState = {
   origin: null,
   country: "all",
@@ -807,7 +812,7 @@ function renderFindTheBeatHome() {
         <p>${currentApp.description}</p>
         <div class="hero-actions">
           <a class="small-button" ${linkAttrs(liveAppUrls.findTheBeat)}>Preview App</a>
-          <a class="small-button secondary" href="#home">Back to Brent & Co.</a>
+          <a class="small-button secondary" ${linkAttrs("https://brentandco.org/")}>Back to Brent & Co.</a>
           <a class="small-button secondary" href="#beu-section/scene">Connect to BEU Scene</a>
         </div>
       </div>
@@ -842,7 +847,7 @@ function renderSecondChanceHome() {
         <p>${currentApp.description}</p>
         <div class="hero-actions">
           <a class="small-button" ${linkAttrs(liveAppUrls.secondChance)}>Preview App</a>
-          <a class="small-button secondary" href="#home">Back to Brent & Co.</a>
+          <a class="small-button secondary" ${linkAttrs("https://brentandco.org/")}>Back to Brent & Co.</a>
           <a class="small-button secondary" href="#beu-profile">Trust Profile Pattern</a>
         </div>
       </div>
@@ -883,7 +888,7 @@ function renderBeuHome() {
         <p>Explore, connect, and bond through monthly cultural picks, live “near me” updates, food, places, people, and events.</p>
         <div class="hero-actions">
           <a class="small-button" ${linkAttrs(liveAppUrls.beu)}>Preview BEU</a>
-          <a class="small-button secondary" href="#home">Back to Brent & Co.</a>
+          <a class="small-button secondary" ${linkAttrs("https://brentandco.org/")}>Back to Brent & Co.</a>
           <a class="small-button secondary" href="#beu-profile">Community Trust</a>
         </div>
       </div>
@@ -1294,6 +1299,9 @@ function renderBeuPlace(id) {
 
 function renderBeuProfile() {
   const user = beuCommunity.currentUser || {};
+  const authCopy = beuSession.authenticated
+    ? `Signed in as ${escapeHTML(beuSession.user?.email || user.email || "BEU member")}. Profile changes save to the BEU database.`
+    : "Create an account or log in so your BEU profile, saved places, reviews, and recommendations stay with you.";
   app.innerHTML = `
     <section class="beu-detail-hero">
       <div>
@@ -1304,6 +1312,29 @@ function renderBeuProfile() {
       </div>
     </section>
     <section class="beu-trust">
+      <article class="beu-profile-card">
+        <p class="eyebrow">Account</p>
+        <h2>${beuSession.authenticated ? "Signed In" : "Save Your BEU Profile"}</h2>
+        <p>${authCopy}</p>
+        ${beuSession.status ? `<div class="empty-state">${escapeHTML(beuSession.status)}</div>` : ""}
+        ${beuSession.authenticated ? `
+          <form class="beu-form" data-beu-logout-form>
+            <button class="small-button secondary" type="submit">Log Out</button>
+          </form>
+        ` : `
+          <form class="beu-form" data-beu-signup-form>
+            <input name="displayName" value="${escapeHTML(user.displayName || "")}" placeholder="Display name" required />
+            <input name="email" type="email" value="${escapeHTML(user.email || "")}" placeholder="Email" required />
+            <input name="password" type="password" placeholder="Password, 8 characters minimum" required minlength="8" />
+            <button class="small-button" type="submit">Create BEU Account</button>
+          </form>
+          <form class="beu-form" data-beu-login-form>
+            <input name="email" type="email" placeholder="Email" required />
+            <input name="password" type="password" placeholder="Password" required />
+            <button class="small-button secondary" type="submit">Log In</button>
+          </form>
+        `}
+      </article>
       ${beuProfilePanel()}
       <article class="beu-profile-card">
         <p class="eyebrow">Edit profile</p>
@@ -1795,13 +1826,30 @@ async function loadBeuCommunity() {
     const response = await fetch("data/beu-community.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`BEU community database failed: ${response.status}`);
     const seededCommunity = await response.json();
-    beuCommunity = readJSON("beuCommunity", {
+    const apiResponse = await fetch("/api/beu/community", { cache: "no-store" });
+    if (apiResponse.ok) {
+      const payload = await apiResponse.json();
+      beuSession = {
+        authenticated: Boolean(payload.authenticated),
+        user: payload.community?.currentUser || null,
+        status: payload.authenticated ? "Your BEU account is connected." : ""
+      };
+      beuCommunity = {
+        currentUser: payload.community?.currentUser || seededCommunity.currentUser,
+        reviews: payload.community?.reviews || seededCommunity.reviews || [],
+        recommendations: payload.community?.recommendations || seededCommunity.recommendations || [],
+        savedPlaces: payload.community?.savedPlaces || seededCommunity.savedPlaces || [],
+        reports: payload.community?.reports || seededCommunity.reports || []
+      };
+      return;
+    }
+    beuCommunity = {
       currentUser: seededCommunity.currentUser,
       reviews: seededCommunity.reviews || [],
       recommendations: seededCommunity.recommendations || [],
       savedPlaces: seededCommunity.savedPlaces || [],
       reports: seededCommunity.reports || []
-    });
+    };
     beuCommunity.currentUser ||= seededCommunity.currentUser;
     beuCommunity.reviews ||= [];
     beuCommunity.recommendations ||= [];
@@ -2024,7 +2072,38 @@ function updateBeuCountry(country) {
   renderBeuHome();
 }
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
+  if (event.target.matches("[data-beu-signup-form]")) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    await submitBeuAuth("/api/beu/signup", {
+      displayName: formData.get("displayName")?.toString().trim(),
+      email: formData.get("email")?.toString().trim(),
+      password: formData.get("password")?.toString()
+    });
+    return;
+  }
+
+  if (event.target.matches("[data-beu-login-form]")) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    await submitBeuAuth("/api/beu/login", {
+      email: formData.get("email")?.toString().trim(),
+      password: formData.get("password")?.toString()
+    });
+    return;
+  }
+
+  if (event.target.matches("[data-beu-logout-form]")) {
+    event.preventDefault();
+    const response = await fetch("/api/beu/logout", { method: "POST" });
+    const payload = response.ok ? await response.json() : {};
+    beuSession = { authenticated: false, user: null, status: "You are logged out." };
+    beuCommunity = payload.community || beuCommunity;
+    renderBeuProfile();
+    return;
+  }
+
   if (event.target.matches("[data-beu-profile-form]")) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -2039,7 +2118,7 @@ function handleSubmit(event) {
       badges: formData.get("badges")?.toString().split(",").map((badge) => badge.trim()).filter(Boolean) || [],
       verifiedUser: Boolean(formData.get("verifiedUser"))
     };
-    persistBeuCommunity();
+    await persistBeuCommunity();
     renderBeuProfile();
     return;
   }
@@ -2116,8 +2195,58 @@ function toggleValue(list, value) {
   return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
 }
 
-function persistBeuCommunity() {
-  localStorage.setItem("beuCommunity", JSON.stringify(beuCommunity));
+async function submitBeuAuth(url, payload) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    beuSession = {
+      ...beuSession,
+      status: data.error || "Account request failed. Please try again."
+    };
+    renderBeuProfile();
+    return;
+  }
+  beuSession = {
+    authenticated: true,
+    user: data.user || data.community?.currentUser || null,
+    status: "Your BEU account is connected."
+  };
+  beuCommunity = data.community || beuCommunity;
+  renderBeuProfile();
+}
+
+async function persistBeuCommunity() {
+  if (!beuSession.authenticated) {
+    beuSession = {
+      ...beuSession,
+      status: "Please create an account or log in before saving BEU profile changes."
+    };
+    return false;
+  }
+  const response = await fetch("/api/beu/community", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(beuCommunity)
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    beuSession = {
+      ...beuSession,
+      status: payload.error || "BEU could not save your profile yet."
+    };
+    return false;
+  }
+  beuCommunity = payload.community || beuCommunity;
+  beuSession = {
+    ...beuSession,
+    user: beuCommunity.currentUser || beuSession.user,
+    status: "Saved to your BEU account."
+  };
+  return true;
 }
 
 function readJSON(key, fallback) {

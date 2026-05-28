@@ -5,6 +5,8 @@ BEU is the Brent & Co. cultural compass app for global Black-owned and Black-cen
 ## What This Build Includes
 
 - BEU home route as the default screen
+- Flask backend for account signup, login, logout, and session-backed profile access
+- SQLite persistence for BEU users and saved community/profile data
 - Compass navigation for North Star, Essence, Scene, and Waypoint
 - Global country/city selectors
 - Location-aware sample data structure
@@ -15,18 +17,30 @@ BEU is the Brent & Co. cultural compass app for global Black-owned and Black-cen
 
 ## Deploy on Render
 
-Create a Static Site:
+Create a Web Service:
 
-- Repository: `shayreneabee/BEU`
+- Repository: `shayreneabee/beu`
 - Branch: `main`
-- Build command: leave blank or use `echo "No build needed"`
-- Publish directory: `.`
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn app:app`
 - Root directory: blank
+- Add a persistent disk mounted at `/data`
+- Set `SECRET_KEY` to a real generated secret
+- Set `INSTANCE_DIR=/data/instance`
+- Set `DATABASE_PATH=/data/instance/beu.sqlite`
 
 ## Local Preview
 
-Open:
+Run:
 
-```text
-file:///Users/newuser/Documents/Codex/BEU/index.html#beu
+```bash
+pip install -r requirements.txt
+flask --app app run
 ```
+
+Then open `http://127.0.0.1:5000/#beu`.
+
+## Database Tables
+
+- `users`: email, password hash, display name, and account creation time.
+- `beu_profiles`: one saved BEU community/profile JSON document per user, including profile fields, saved places, reviews, recommendations, and reports.

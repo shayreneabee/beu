@@ -1,5 +1,17 @@
 services:
-  - type: static
+  - type: web
     name: beu-cultural-compass
-    buildCommand: ""
-    staticPublishPath: .
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: INSTANCE_DIR
+        value: /data/instance
+      - key: DATABASE_PATH
+        value: /data/instance/beu.sqlite
+    disk:
+      name: beu-data
+      mountPath: /data
+      sizeGB: 1
