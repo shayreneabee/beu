@@ -11,6 +11,8 @@ services:
         value: /data/instance
       - key: DATABASE_PATH
         value: /data/instance/beu.sqlite
+      - key: UPLOAD_DIR
+        value: /data/uploads
     disk:
       name: beu-data
       mountPath: /data

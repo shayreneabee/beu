@@ -570,6 +570,7 @@ let beuState = {
   category: "all",
   tag: "all",
   query: "",
+  providerMessage: "",
   status: "Showing global BEU sample data. Choose a country, select a city, or tap Use My Location to personalize nearby culture."
 };
 
@@ -2000,20 +2001,22 @@ function requestBeuLocation() {
   renderBeuHome();
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    async (position) => {
+      const origin = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        label: "your current location"
+      };
       beuState = {
         ...beuState,
-        origin: {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          label: "your current location"
-        },
+        origin,
         country: "all",
         selectedCity: "all",
         locationLabel: "your current location",
-        status: "Using your current GPS location. Nearby places, cuisine, cultural spots, events, promoters, and venues are prioritized when sample data is close enough. Future Google Places/API keys should stay server-side."
+        status: "Using your current GPS location. Checking the protected BEU nearby endpoint for local culture, cuisine, events, promoters, and venues."
       };
       renderBeuHome();
+      await refreshBeuNearby(origin);
     },
     () => {
       beuState = { ...beuState, status: "Location permission was not granted. Use the manual country and city search instead." };
@@ -2021,6 +2024,40 @@ function requestBeuLocation() {
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
+}
+
+async function refreshBeuNearby(origin) {
+  try {
+    const params = new URLSearchParams({
+      lat: String(origin.lat),
+      lng: String(origin.lng),
+      radius: String(beuState.radiusMiles || 25)
+    });
+    const response = await fetch(`/api/beu/nearby?${params.toString()}`, { cache: "no-store" });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || "Nearby search failed.");
+
+    if (Array.isArray(payload.listings) && payload.listings.length) {
+      const byId = new Map(beuListings.map((listing) => [listing.id, listing]));
+      payload.listings.forEach((listing) => byId.set(listing.id, { ...byId.get(listing.id), ...listing }));
+      beuListings = [...byId.values()];
+    }
+
+    beuState = {
+      ...beuState,
+      providerMessage: payload.message || "",
+      status: payload.listings?.length
+        ? `Showing ${payload.listings.length} nearby BEU result${payload.listings.length === 1 ? "" : "s"} from ${payload.provider || "curated"} data.`
+        : payload.message || "No nearby BEU matches yet. Try a wider radius or manual city search."
+    };
+  } catch (error) {
+    beuState = {
+      ...beuState,
+      providerMessage: "Nearby provider check failed safely.",
+      status: "GPS is on, but BEU could not reach the nearby endpoint. Manual city search still works."
+    };
+  }
+  renderBeuHome();
 }
 
 function searchBeuCity() {

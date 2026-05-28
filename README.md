@@ -6,6 +6,7 @@ BEU is the Brent & Co. cultural compass app for global Black-owned and Black-cen
 
 - BEU home route as the default screen
 - Flask backend for account signup, login, logout, and session-backed profile access
+- Profile picture uploads saved to persistent storage
 - SQLite persistence for BEU users and saved community/profile data
 - Compass navigation for North Star, Essence, Scene, and Waypoint
 - Global country/city selectors
@@ -28,6 +29,7 @@ Create a Web Service:
 - Set `SECRET_KEY` to a real generated secret
 - Set `INSTANCE_DIR=/data/instance`
 - Set `DATABASE_PATH=/data/instance/beu.sqlite`
+- Set `UPLOAD_DIR=/data/uploads`
 
 ## Local Preview
 
