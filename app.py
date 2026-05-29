@@ -7,7 +7,7 @@ import sqlite3
 import time
 from pathlib import Path
 
-from flask import Flask, jsonify, request, send_from_directory, session
+from flask import Flask, redirect
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -23,6 +23,11 @@ app = Flask(__name__, static_folder=None)
 app.secret_key = os.getenv("SECRET_KEY", "dev-beu-change-me")
 AUTH_PROVIDER = os.getenv("BRENT_AUTH_PROVIDER", "local")
 PLACES_PROVIDER = os.getenv("BEU_PLACES_PROVIDER", "curated").lower()
+
+
+@app.before_request
+def redirect_archived_beu():
+    return redirect("https://brentandco.org/", code=302)
 
 
 def db():
