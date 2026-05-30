@@ -1,9 +1,16 @@
-# Brent & Co Founder Profile
+# BEU Founder Profiles
 
-BEU is archived and redirects to the Brent & Co homepage. If BEU is restored later, it should seed and reference the shared Brent & Co owner identity below instead of creating an app-specific duplicate.
+BEU is an active standalone app with its own domain, branding, deployment, database path, and future app-store/PWA path. It remains connected to Brent & Co as part of the larger ecosystem, but it does not depend on Brent & Co to function.
+
+Protected founder/admin profiles:
 
 - Email: shalanda.brent@gmail.com
-- Display name: Shay / Brent & Co Founder
+  Display name: Shay / Brent & Co Founder
+- Email: jerod.l.cotton@gmail.com
+  Display name: Jerod / Brent & Co Founder
+
+For both profiles:
+
 - Role: admin
 - Founder: true
 - Verified: true

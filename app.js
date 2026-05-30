@@ -606,6 +606,7 @@ function render() {
   if (route === "beu-section") return renderBeuSection(id);
   if (beuSections.some((section) => section.id === route)) return renderBeuSection(route);
   if (route === "beu-place") return renderBeuPlace(id);
+  if (route === "beu-signup") return renderBeuSignupLanding();
   if (route === "beu-profile") return renderBeuProfile();
   if (route === "beu-saved") return renderBeuSaved();
   if (route === "beu-admin") return renderBeuAdmin();
@@ -626,7 +627,7 @@ function render() {
 
 function setActive(route) {
   const cookingRoutes = ["kitchen", "cook101", "recipes", "paths", "planner", "hosting", "about", "account", "search", "cuisine"];
-  const beuRoutes = ["beu-section", "beu-place", "beu-profile", "beu-saved", "beu-admin", ...beuSections.map((section) => section.id)];
+  const beuRoutes = ["beu-section", "beu-place", "beu-profile", "beu-signup", "beu-saved", "beu-admin", ...beuSections.map((section) => section.id)];
   const normalizedRoute = cookingRoutes.includes(route) ? "lets-cook" : beuRoutes.includes(route) ? "beu" : route;
   document.querySelectorAll(".main-nav a").forEach((link) => {
     link.classList.toggle("active", link.dataset.route === normalizedRoute);
@@ -635,7 +636,7 @@ function setActive(route) {
 
 function activeAppForRoute(route) {
   const cookingRoutes = ["lets-cook", "kitchen", "cook101", "recipes", "paths", "planner", "hosting", "about", "account", "search", "cuisine"];
-  const beuRoutes = ["beu", "beu-section", "beu-place", "beu-profile", "beu-saved", "beu-admin", ...beuSections.map((section) => section.id)];
+  const beuRoutes = ["beu", "beu-section", "beu-place", "beu-profile", "beu-signup", "beu-saved", "beu-admin", ...beuSections.map((section) => section.id)];
   if (cookingRoutes.includes(route)) return ecosystemApps.find((item) => item.id === "lets-cook");
   if (beuRoutes.includes(route)) return ecosystemApps.find((item) => item.id === "beu");
   if (route === "find-the-beat") return ecosystemApps.find((item) => item.id === "find-the-beat");
@@ -884,12 +885,13 @@ function renderBeuHome() {
             <strong>Cultural Compass</strong>
           </div>
         </div>
-        <p class="eyebrow">Brent & Co. / BEU</p>
+        <p class="eyebrow">A Brent & Co. App</p>
         <h1>Your cultural compass wherever you land</h1>
         <p>Explore, connect, and bond through monthly cultural picks, live “near me” updates, food, places, people, and events.</p>
         <div class="hero-actions">
-          <a class="small-button" ${linkAttrs(liveAppUrls.beu)}>Preview BEU</a>
-          <a class="small-button secondary" ${linkAttrs("https://brentandco.org/")}>Back to Brent & Co.</a>
+          <a class="small-button" href="#beu-signup">Create BEU Account</a>
+          <a class="small-button secondary" href="#beu">Explore BEU</a>
+          <a class="small-button secondary" ${linkAttrs("https://brentandco.org/")}>Brent & Co.</a>
           <a class="small-button secondary" href="#beu-profile">Community Trust</a>
         </div>
       </div>
@@ -978,12 +980,12 @@ function renderBeuHome() {
     </section>
     <section class="beu-map-strip">
       <div>
-        <p class="eyebrow">Brent & Co. connected</p>
-        <h2>Culture, food, places, and plans in one ecosystem</h2>
-        <p>BEU can connect back to Let's Cook Ya'll for cuisine features, Find the Beat for cultural sound, and Second Chance Careers for community opportunity.</p>
+        <p class="eyebrow">Independent, connected</p>
+        <h2>BEU stands on its own compass.</h2>
+        <p>BEU can connect back to Brent & Co. when helpful, but its discovery, profiles, location tools, and future database are designed to operate independently.</p>
       </div>
       <div class="beu-link-stack">
-        <a href="#lets-cook">Cuisine features with Let's Cook Ya'll</a>
+        <a ${linkAttrs("https://brentandco.org/")}>Brent & Co. ecosystem</a>
         <a ${linkAttrs(liveAppUrls.findTheBeat)}>Music and event energy with Find the Beat</a>
         <a ${linkAttrs(liveAppUrls.secondChance)}>Community support with Second Chance Careers</a>
       </div>
@@ -1299,6 +1301,46 @@ function renderBeuPlace(id) {
   `;
 }
 
+function renderBeuSignupLanding() {
+  app.innerHTML = `
+    <section class="beu-detail-hero signup-landing">
+      <div>
+        <p class="eyebrow">Join BEU</p>
+        <h1>Create your cultural compass profile.</h1>
+        <p>Save places, build a trusted profile, recommend cultural spots, write reviews, and keep your BEU discovery history connected to your own account.</p>
+        <div class="hero-actions">
+          <a class="small-button secondary" href="#beu">Explore First</a>
+          <a class="small-button secondary" href="#beu-profile">Already Have An Account?</a>
+        </div>
+      </div>
+    </section>
+    <section class="beu-trust signup-layout">
+      <article class="beu-profile-card">
+        <p class="eyebrow">BEU account</p>
+        <h2>Sign Up</h2>
+        <p>Your BEU account is separate and can later opt into Brent & Co. shared sign-on if that becomes useful.</p>
+        ${beuSession.status ? `<div class="empty-state">${escapeHTML(beuSession.status)}</div>` : ""}
+        <form class="beu-form" data-beu-signup-form>
+          <input name="displayName" placeholder="Display name" required />
+          <input name="email" type="email" placeholder="Email" required />
+          <input name="password" type="password" placeholder="Password, 8 characters minimum" required minlength="8" />
+          <button class="small-button" type="submit">Create BEU Account</button>
+        </form>
+      </article>
+      <article class="beu-profile-card">
+        <p class="eyebrow">Why join?</p>
+        <h2>Save, review, and recommend.</h2>
+        <div class="beu-stat-row">
+          <div><strong>01</strong><span>Save places</span></div>
+          <div><strong>02</strong><span>Share reviews</span></div>
+          <div><strong>03</strong><span>Build trust</span></div>
+        </div>
+        <p>BEU keeps culture discovery personal, useful, and community-centered without depending on any other Brent & Co. app to function.</p>
+      </article>
+    </section>
+  `;
+}
+
 function renderBeuProfile() {
   const user = beuCommunity.currentUser || {};
   const authCopy = beuSession.authenticated
@@ -1349,8 +1391,8 @@ function renderBeuProfile() {
           <input name="homeCountry" value="${escapeHTML(user.homeCountry || "")}" placeholder="Home country" />
           <textarea name="bio" placeholder="Bio">${escapeHTML(user.bio || "")}</textarea>
           <input name="favoriteCategories" value="${escapeHTML((user.favoriteCategories || []).join(", "))}" placeholder="Favorite categories, comma-separated" />
-          <input name="badges" value="${escapeHTML((user.badges || []).join(", "))}" placeholder="Badges, comma-separated" />
-          <label class="inline-check"><input name="verifiedUser" type="checkbox" ${user.verifiedUser ? "checked" : ""} /> Verified user later</label>
+          <input name="badges" value="${escapeHTML((user.badges || []).filter((badge) => !["Founder", "Verified", "Brent & Co", "Admin"].includes(badge)).join(", "))}" placeholder="Interests or community badges, comma-separated" />
+          <p class="location-helper">Founder, admin, and verified badges are protected by BEU and cannot be self-assigned.</p>
           <button class="small-button" type="submit">Save Profile</button>
         </form>
       </article>
@@ -1365,7 +1407,7 @@ function renderBeuSaved() {
       <div>
         <p class="eyebrow">BEU account</p>
         <h1>Saved Places</h1>
-        <p>Your personal travel and culture shortlist across the Brent & Co. ecosystem.</p>
+        <p>Your personal BEU travel and culture shortlist.</p>
         <div class="hero-actions"><a class="small-button" href="#beu">Back to BEU</a></div>
       </div>
     </section>
@@ -2174,8 +2216,11 @@ async function handleSubmit(event) {
       homeCountry: formData.get("homeCountry")?.toString().trim() || "",
       bio: formData.get("bio")?.toString().trim() || "",
       favoriteCategories: formData.get("favoriteCategories")?.toString().split(",").map((tag) => tag.trim()).filter(Boolean) || [],
-      badges: formData.get("badges")?.toString().split(",").map((badge) => badge.trim()).filter(Boolean) || [],
-      verifiedUser: Boolean(formData.get("verifiedUser"))
+      badges: [
+        ...(beuCommunity.currentUser?.badges || []).filter((badge) => ["Founder", "Verified", "Brent & Co", "Admin"].includes(badge)),
+        ...(formData.get("badges")?.toString().split(",").map((badge) => badge.trim()).filter(Boolean) || [])
+      ],
+      verifiedUser: Boolean(beuCommunity.currentUser?.verifiedUser)
     };
     await persistBeuCommunity();
     renderBeuProfile();

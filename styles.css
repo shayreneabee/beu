@@ -277,6 +277,7 @@ select {
 .active-app-mark {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   min-height: 58px;
   max-width: 240px;
@@ -287,6 +288,14 @@ select {
   color: #fff8e9;
   font-weight: 900;
   line-height: 1.05;
+}
+
+.active-app-mark small {
+  flex-basis: 100%;
+  margin-left: 54px;
+  color: rgba(255, 248, 233, 0.72);
+  font-size: 0.68rem;
+  font-weight: 800;
 }
 
 .active-app-mark img {

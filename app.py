@@ -7,7 +7,7 @@ import sqlite3
 import time
 from pathlib import Path
 
-from flask import Flask, redirect
+from flask import Flask, jsonify, request, send_from_directory, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -23,11 +23,18 @@ app = Flask(__name__, static_folder=None)
 app.secret_key = os.getenv("SECRET_KEY", "dev-beu-change-me")
 AUTH_PROVIDER = os.getenv("BRENT_AUTH_PROVIDER", "local")
 PLACES_PROVIDER = os.getenv("BEU_PLACES_PROVIDER", "curated").lower()
-
-
-@app.before_request
-def redirect_archived_beu():
-    return redirect("https://brentandco.org/", code=302)
+OWNER_AUTH_PROVIDER = os.getenv("BRENT_OWNER_AUTH_PROVIDER", "brent-core")
+OWNER_INITIAL_PASSWORD = os.getenv("BRENT_OWNER_INITIAL_PASSWORD", "")
+FOUNDER_PROFILES = [
+    {
+        "email": os.getenv("BRENT_OWNER_EMAIL", "shalanda.brent@gmail.com").strip().lower(),
+        "display_name": os.getenv("BRENT_OWNER_DISPLAY_NAME", "Shay / Brent & Co Founder"),
+    },
+    {
+        "email": os.getenv("BRENT_COFOUNDER_EMAIL", "jerod.l.cotton@gmail.com").strip().lower(),
+        "display_name": os.getenv("BRENT_COFOUNDER_DISPLAY_NAME", "Jerod / Brent & Co Founder"),
+    },
+]
 
 
 def db():
@@ -49,6 +56,9 @@ def init_db():
                 display_name TEXT NOT NULL,
                 brent_account_id TEXT DEFAULT '',
                 auth_provider TEXT DEFAULT 'local',
+                is_admin INTEGER DEFAULT 0,
+                is_founder INTEGER DEFAULT 0,
+                is_verified INTEGER DEFAULT 0,
                 created_at INTEGER NOT NULL
             )
             """
@@ -69,6 +79,9 @@ def init_db():
         for column, definition in {
             "brent_account_id": "TEXT DEFAULT ''",
             "auth_provider": "TEXT DEFAULT 'local'",
+            "is_admin": "INTEGER DEFAULT 0",
+            "is_founder": "INTEGER DEFAULT 0",
+            "is_verified": "INTEGER DEFAULT 0",
         }.items():
             if column not in existing_columns:
                 conn.execute(f"ALTER TABLE users ADD COLUMN {column} {definition}")
@@ -80,6 +93,86 @@ def brent_account_id(email):
     return f"brent-local-{digest}"
 
 
+def official_badges(user):
+    if not user:
+        return []
+    badges = []
+    if user["is_founder"]:
+        badges.extend(["Founder", "BEU", "Brent & Co"])
+    elif user["is_verified"]:
+        badges.append("Verified")
+    return list(dict.fromkeys(badges))
+
+
+def apply_user_identity(community, user):
+    current = community.setdefault("currentUser", {})
+    current["id"] = f"user-{user['id']}"
+    current["email"] = user["email"]
+    current["brentAccountId"] = user["brent_account_id"] or brent_account_id(user["email"])
+    current["authProvider"] = user["auth_provider"] or AUTH_PROVIDER
+    current.setdefault("displayName", user["display_name"])
+    current["isAdmin"] = bool(user["is_admin"])
+    current["isFounder"] = bool(user["is_founder"])
+    current["verifiedUser"] = bool(user["is_verified"])
+    editable_badges = [
+        badge
+        for badge in current.get("badges", [])
+        if badge not in {"Founder", "Verified", "Brent & Co", "Admin"}
+    ]
+    current["badges"] = list(dict.fromkeys([*official_badges(user), *editable_badges])) or ["BEU Member"]
+    return community
+
+
+def seed_founder_profile():
+    with db() as conn:
+        for founder in FOUNDER_PROFILES:
+            email = founder["email"]
+            if not email:
+                continue
+            existing = conn.execute(
+                "SELECT * FROM users WHERE lower(email) = lower(?)",
+                (email,),
+            ).fetchone()
+            if existing:
+                conn.execute(
+                    """
+                    UPDATE users
+                    SET display_name = ?, brent_account_id = ?, auth_provider = ?,
+                        is_admin = 1, is_founder = 1, is_verified = 1
+                    WHERE id = ?
+                    """,
+                    (
+                        founder["display_name"],
+                        brent_account_id(email),
+                        OWNER_AUTH_PROVIDER,
+                        existing["id"],
+                    ),
+                )
+                continue
+            cursor = conn.execute(
+                """
+                INSERT INTO users (
+                    email, password_hash, display_name, brent_account_id,
+                    auth_provider, is_admin, is_founder, is_verified, created_at
+                )
+                VALUES (?, ?, ?, ?, ?, 1, 1, 1, ?)
+                """,
+                (
+                    email,
+                    generate_password_hash(OWNER_INITIAL_PASSWORD or secrets.token_urlsafe(32)),
+                    founder["display_name"],
+                    brent_account_id(email),
+                    OWNER_AUTH_PROVIDER,
+                    int(time.time()),
+                ),
+            )
+            user = conn.execute("SELECT * FROM users WHERE id = ?", (cursor.lastrowid,)).fetchone()
+            conn.execute(
+                "INSERT INTO beu_profiles (user_id, community_json, updated_at) VALUES (?, ?, ?)",
+                (user["id"], json.dumps(default_community(user)), int(time.time())),
+            )
+
+
 def public_user(user):
     if not user:
         return None
@@ -89,6 +182,10 @@ def public_user(user):
         "displayName": user["display_name"],
         "brentAccountId": user["brent_account_id"] or brent_account_id(user["email"]),
         "authProvider": user["auth_provider"] or AUTH_PROVIDER,
+        "isAdmin": bool(user["is_admin"]),
+        "isFounder": bool(user["is_founder"]),
+        "isVerified": bool(user["is_verified"]),
+        "badges": official_badges(user),
     }
 
 
@@ -106,8 +203,10 @@ def default_community(user):
             "homeCountry": "",
             "bio": "",
             "favoriteCategories": [],
-            "badges": ["BEU Member"] if user else [],
-            "verifiedUser": False,
+            "badges": official_badges(user) or (["BEU Member"] if user else []),
+            "verifiedUser": bool(user["is_verified"]) if user else False,
+            "isAdmin": bool(user["is_admin"]) if user else False,
+            "isFounder": bool(user["is_founder"]) if user else False,
         },
         "reviews": [],
         "recommendations": [],
@@ -156,18 +255,13 @@ def get_community(user):
                 "INSERT INTO beu_profiles (user_id, community_json, updated_at) VALUES (?, ?, ?)",
                 (user["id"], json.dumps(data), int(time.time())),
             )
-    data.setdefault("currentUser", {})
-    data["currentUser"]["id"] = f"user-{user['id']}"
-    data["currentUser"]["email"] = user["email"]
-    data["currentUser"]["brentAccountId"] = user["brent_account_id"] or brent_account_id(user["email"])
-    data["currentUser"]["authProvider"] = user["auth_provider"] or AUTH_PROVIDER
-    data["currentUser"].setdefault("displayName", user["display_name"])
-    return data
+    return apply_user_identity(data, user)
 
 
 @app.before_request
 def ensure_database():
     init_db()
+    seed_founder_profile()
 
 
 @app.get("/api/beu/session")
@@ -253,6 +347,7 @@ def api_save_community():
     current["email"] = user["email"]
     current["brentAccountId"] = user["brent_account_id"] or brent_account_id(user["email"])
     current["authProvider"] = user["auth_provider"] or AUTH_PROVIDER
+    community = apply_user_identity(community, user)
     with db() as conn:
         conn.execute("UPDATE users SET display_name = ? WHERE id = ?", (display_name, user["id"]))
         conn.execute(
