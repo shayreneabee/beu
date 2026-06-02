@@ -82,39 +82,76 @@ const beuSections = [
   {
     id: "north-star",
     label: "North Star",
-    title: "Promoter of the Month",
+    title: "North Star",
     direction: "N",
-    text: "A monthly spotlight for the person moving culture forward: the connector, host, organizer, DJ, curator, or community builder people should know.",
-    detail: "Feature profile, event links, interview clips, social handles, and a Brent & Co. spotlight card.",
+    icon: "✦",
+    text: "Meet the people shaping the community.",
+    detail: "Promoters, influencers, community leaders, cultural guides, and featured people worth knowing.",
     cta: "View Spotlight"
   },
   {
     id: "essence",
-    label: "Essence",
-    title: "Cuisine of the Month",
+    label: "East Essence",
+    title: "East Essence",
     direction: "E",
-    text: "A cultural food feature that connects restaurants, home cooking, history, and the flavors that make a place feel alive.",
-    detail: "Pair this with Let's Cook Ya'll recipes, restaurant picks, creator notes, and a monthly food story.",
+    icon: "◈",
+    text: "Understand the culture and traditions.",
+    detail: "Culture, traditions, language, customs, heritage, and the identity that gives each city its rhythm.",
     cta: "Taste the Feature"
   },
   {
     id: "scene",
-    label: "Scene",
-    title: "Places to Visit",
+    label: "South Scene",
+    title: "South Scene",
     direction: "S",
-    text: "Curated destinations and local gems: lounges, museums, neighborhoods, pop-ups, cultural events, and weekend stops.",
-    detail: "Map cards, saved places, trip ideas, and community-submitted recommendations.",
+    icon: "◆",
+    text: "Explore places, food, and experiences.",
+    detail: "Restaurants, nightlife, attractions, events, experiences, music venues, and places to visit.",
     cta: "Explore Places"
   },
   {
     id: "waypoint",
-    label: "Waypoint",
-    title: "Yearly Calendar",
+    label: "West Waypoint",
+    title: "West Waypoint",
     direction: "W",
-    text: "A clear annual calendar for festivals, tastings, shows, markets, cultural moments, and Brent & Co. gatherings.",
-    detail: "Monthly planning, featured dates, reminders, and links out to each app in the ecosystem.",
+    icon: "◇",
+    text: "Plan around festivals and events.",
+    detail: "Festivals, annual calendars, cultural celebrations, travel planning, and seasonal guides.",
     cta: "Open Calendar"
   }
+];
+
+const beuFeaturedCities = [
+  { city: "London", country: "United Kingdom", image: "assets/editorial-culture-travel.jpg", text: "Diaspora culture, galleries, food markets, music nights, and neighborhood stories." },
+  { city: "Paris", country: "France", image: "assets/editorial-nightlife-culture.jpg", text: "Elegant cultural stops, Black-owned dining leads, fashion energy, and intimate nightlife." },
+  { city: "Toronto", country: "Canada", image: "assets/african-food.jpeg", text: "Caribbean festivals, food corridors, arts spaces, and community-led events." },
+  { city: "New York", country: "United States", image: "assets/editorial-music-collab.jpg", text: "Harlem heritage, museums, supper clubs, creator scenes, and cultural landmarks." }
+];
+
+const beuPromoters = [
+  { name: "Maya Cole", city: "London", specialty: "Afro-fusion events", photo: "assets/editorial-nightlife-culture.jpg", bio: "Curates warm nightlife rooms, supper-club collaborations, and music-led community gatherings." },
+  { name: "Andre Baptiste", city: "Toronto", specialty: "Caribbean culture", photo: "assets/african-food.jpeg", bio: "Connects food, festival calendars, and family-friendly cultural events across the city." },
+  { name: "Nia Laurent", city: "Paris", specialty: "Art walks", photo: "assets/editorial-culture-travel.jpg", bio: "Builds editorial city guides around Black art, fashion, heritage spaces, and local voices." }
+];
+
+const beuExperiences = [
+  { title: "Diaspora Supper Club", city: "London", category: "Restaurant", image: "assets/african-food.jpeg" },
+  { title: "Late Night Vinyl Lounge", city: "Paris", category: "Music venue", image: "assets/editorial-nightlife-culture.jpg" },
+  { title: "Heritage Walking Route", city: "New York", category: "Cultural site", image: "assets/editorial-culture-travel.jpg" },
+  { title: "Hidden Market Morning", city: "Toronto", category: "Hidden gem", image: "assets/editorial-kitchen-prep.jpg" },
+  { title: "Contemporary Black Arts Stop", city: "Berlin", category: "Museum", image: "assets/editorial-culture-travel.jpg" }
+];
+
+const beuFoodStories = [
+  { dish: "Jollof Rice", origin: "West Africa", image: "assets/african-food.jpeg", story: "A celebratory rice dish with tomato, pepper, spice, and deep regional pride." },
+  { dish: "Curry Chicken", origin: "Caribbean", image: "assets/indian-food.jpeg", story: "Island comfort with curry, thyme, garlic, potatoes, and slow-simmered warmth." },
+  { dish: "Soul Food Plate", origin: "American South", image: "assets/american-food.jpeg", story: "Food memory, resilience, family tables, and Sunday comfort in one plate." }
+];
+
+const beuUpcomingEvents = [
+  { name: "Carnival Weekend Guide", city: "Toronto", date: "August 2026", image: "assets/editorial-nightlife-culture.jpg", text: "Food, music, family events, vendors, and routes for a culture-first weekend." },
+  { name: "Black Art Walk", city: "Paris", date: "September 2026", image: "assets/editorial-culture-travel.jpg", text: "Galleries, fashion stops, talks, and neighborhood stories curated for travelers." },
+  { name: "Amapiano Night Market", city: "London", date: "October 2026", image: "assets/editorial-music-collab.jpg", text: "Music, food stalls, small makers, and late-night community rhythm." }
 ];
 
 const appHubSections = {
@@ -876,56 +913,127 @@ function renderBeuHome() {
   const cityOptions = beuState.country === "all" ? beuCities : beuCities.filter((city) => city.country === beuState.country);
   const activeLocation = beuState.locationLabel || beuState.origin?.label || "Global";
   app.innerHTML = `
-    <section class="beu-hero">
-      <div class="beu-hero-copy">
-        <div class="beu-brandline">
-          <img src="assets/beu-logo.jpg" alt="BEU" />
-          <div>
-            <span>BLACK EUROPE</span>
-            <strong>Cultural Compass</strong>
-          </div>
+    <section class="beu-premium-hero">
+      <div class="beu-hero-overlay">
+        <p class="eyebrow">BEU Cultural Compass</p>
+        <h1>Discover culture through the people, places, flavors, and traditions that make every city unique.</h1>
+        <p>Luxury travel energy meets community-led discovery. Search cities, follow the compass, and build a cultural journey around what locals know best.</p>
+        <div class="beu-journey-search">
+          <input id="beuQuery" class="search-input" placeholder="Search restaurants, museums, music venues, hidden gems..." value="${beuState.query}" />
+          <select id="beuCountry" class="filter-select">
+            <option value="all">All countries</option>
+            ${countries.map((country) => `<option value="${country}" ${beuState.country === country ? "selected" : ""}>${country}</option>`).join("")}
+          </select>
+          <select id="beuCity" class="filter-select">
+            <option value="all">All cities</option>
+            ${cityOptions.map((city) => `<option value="${city.id}" ${beuState.selectedCity === city.id ? "selected" : ""}>${city.label}</option>`).join("")}
+          </select>
+          <button class="small-button" data-beu-city-search>Explore Cities</button>
         </div>
-        <p class="eyebrow">A Brent & Co. App</p>
-        <h1>Your cultural compass wherever you land</h1>
-        <p>Explore, connect, and bond through monthly cultural picks, live “near me” updates, food, places, people, and events.</p>
         <div class="hero-actions">
-          <a class="small-button" href="#beu-signup">Create BEU Account</a>
-          <a class="small-button secondary" href="#beu">Explore BEU</a>
-          <a class="small-button secondary" ${linkAttrs("https://brentandco.org/")}>Brent & Co.</a>
-          <a class="small-button secondary" href="#beu-profile">Community Trust</a>
+          <a class="small-button" href="#beu-section/scene">Start Your Journey</a>
+          <a class="small-button secondary" href="#beu-signup">Create BEU Account</a>
         </div>
       </div>
-      <div class="beu-city-panel">
-        <label for="beuCountry">Country</label>
-        <select id="beuCountry" class="filter-select">
-          <option value="all">All countries</option>
-          ${countries.map((country) => `<option value="${country}" ${beuState.country === country ? "selected" : ""}>${country}</option>`).join("")}
-        </select>
-        <label for="beuCity">City</label>
-        <select id="beuCity" class="filter-select">
-          <option value="all">All cities</option>
-          ${cityOptions.map((city) => `<option value="${city.id}" ${beuState.selectedCity === city.id ? "selected" : ""}>${city.label}</option>`).join("")}
-        </select>
-        <button class="small-button secondary" data-beu-city-search>Explore Area</button>
-        <span>${beuState.origin ? `GPS: ${beuState.origin.lat.toFixed(3)}, ${beuState.origin.lng.toFixed(3)}` : "Manual city search available"}</span>
-      </div>
-      <div class="compass-shell" aria-label="BEU compass navigation">
-        <div class="compass-ring">
-          <span class="north">N</span>
-          <span class="east">E</span>
-          <span class="south">S</span>
-          <span class="west">W</span>
-          <div class="needle"></div>
-          <img src="assets/beu-logo.jpg" alt="" />
-        </div>
-        ${beuSections.map((section) => `<a class="compass-card ${section.id}" href="${beuSectionHref(section.id)}"><span>${section.direction}</span><strong>${section.title.replace(" of the Month", "")}</strong><em>${section.label}</em></a>`).join("")}
-      </div>
-    </section>
-    <section class="beu-nav" aria-label="BEU section navigation">
-      ${beuSections.map((section) => `<a href="${beuSectionHref(section.id)}"><span>${section.direction}</span>${section.label}</a>`).join("")}
     </section>
     ${beuAccountNav()}
-    <section class="beu-controls">
+    <section class="beu-premium-section">
+      <div class="section-heading">
+        <p class="eyebrow">Featured cities</p>
+        <h2>Start with cities that carry cultural rhythm.</h2>
+      </div>
+      <div class="beu-city-grid">
+        ${beuFeaturedCities.map((city) => `
+          <article class="beu-destination-card">
+            <figure><img src="${city.image}" alt="${city.city}" loading="lazy" /></figure>
+            <div>
+              <span>${city.country}</span>
+              <h3>${city.city}</h3>
+              <p>${city.text}</p>
+              <a class="small-button secondary" href="#beu-section/scene">Explore</a>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+    <section class="beu-premium-section compass-experience">
+      <div class="section-heading">
+        <p class="eyebrow">Compass experience</p>
+        <h2>Four directions. One cultural journey.</h2>
+      </div>
+      <div class="premium-compass-grid">
+        ${beuSections.map((section) => `
+          <a class="premium-compass-card ${section.id}" href="${beuSectionHref(section.id)}">
+            <span>${section.direction}</span>
+            <i>${section.icon}</i>
+            <h3>${section.title}</h3>
+            <p>${section.text}</p>
+          </a>
+        `).join("")}
+      </div>
+    </section>
+    <section class="beu-premium-section promoter-spotlight">
+      <div class="section-heading">
+        <p class="eyebrow">Promoter spotlight</p>
+        <h2>People shaping the room before you arrive.</h2>
+      </div>
+      <div class="beu-promoter-grid">
+        ${beuPromoters.map((person) => `
+          <article>
+            <img src="${person.photo}" alt="${person.name}" loading="lazy" />
+            <div>
+              <span>${person.city}</span>
+              <h3>${person.name}</h3>
+              <strong>${person.specialty}</strong>
+              <p>${person.bio}</p>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+    <section class="beu-premium-section">
+      <div class="section-heading">
+        <p class="eyebrow">Trending experiences</p>
+        <h2>Restaurants, museums, music venues, and hidden gems.</h2>
+      </div>
+      <div class="beu-horizontal-row">
+        ${beuExperiences.map((item) => `
+          <article class="beu-discovery-card">
+            <img src="${item.image}" alt="${item.title}" loading="lazy" />
+            <div><span>${item.category}</span><h3>${item.title}</h3><p>${item.city}</p></div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+    <section class="beu-premium-section food-culture-section">
+      <div class="section-heading">
+        <p class="eyebrow">Food & culture</p>
+        <h2>Every dish carries a story.</h2>
+      </div>
+      <div class="beu-food-grid">
+        ${beuFoodStories.map((food) => `
+          <article>
+            <img src="${food.image}" alt="${food.dish}" loading="lazy" />
+            <div><span>${food.origin}</span><h3>${food.dish}</h3><p>${food.story}</p></div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+    <section class="beu-premium-section events-section">
+      <div class="section-heading">
+        <p class="eyebrow">Upcoming events</p>
+        <h2>Plan around the moments that bring culture outside.</h2>
+      </div>
+      <div class="beu-event-premium-grid">
+        ${beuUpcomingEvents.map((event) => `
+          <article>
+            <img src="${event.image}" alt="${event.name}" loading="lazy" />
+            <div><span>${event.date} / ${event.city}</span><h3>${event.name}</h3><p>${event.text}</p></div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+    <section class="beu-controls premium-controls">
       <div>
         <p class="eyebrow">Location-aware discovery</p>
         <h2>Find Black-owned and Black-centered culture in ${activeLocation}</h2>
@@ -934,7 +1042,6 @@ function renderBeuHome() {
       <div class="beu-control-grid">
         <button class="small-button" data-beu-location>Use My Location</button>
         <p class="location-helper">BEU will ask your browser for permission. If you say no, choose a country and city manually.</p>
-        <input id="beuQuery" class="search-input" placeholder="Search restaurants, music, museums..." value="${beuState.query}" />
         <select id="beuCountryFilter" class="filter-select">
           <option value="all">All countries</option>
           ${countries.map((country) => `<option value="${country}" ${beuState.country === country ? "selected" : ""}>${country}</option>`).join("")}
@@ -967,15 +1074,6 @@ function renderBeuHome() {
       </div>
       <div class="beu-results-grid">
         ${results.length ? results.map(beuResultCard).join("") : `<div class="empty-state">No BEU listings match this search yet. Try a wider radius or another city.</div>`}
-      </div>
-    </section>
-    <section class="beu-section">
-      <div class="section-heading">
-        <p class="eyebrow">Compass-style navigation</p>
-        <h2>Four ways to discover what is happening around you</h2>
-      </div>
-      <div class="beu-grid">
-        ${beuSections.map(beuCard).join("")}
       </div>
     </section>
     <section class="beu-map-strip">
