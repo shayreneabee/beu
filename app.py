@@ -25,10 +25,19 @@ AUTH_PROVIDER = os.getenv("BRENT_AUTH_PROVIDER", "local")
 PLACES_PROVIDER = os.getenv("BEU_PLACES_PROVIDER", "curated").lower()
 OWNER_AUTH_PROVIDER = os.getenv("BRENT_OWNER_AUTH_PROVIDER", "brent-core")
 OWNER_INITIAL_PASSWORD = os.getenv("BRENT_OWNER_INITIAL_PASSWORD", "")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID", "")
+APPLE_TEAM_ID = os.getenv("APPLE_TEAM_ID", "")
+APPLE_KEY_ID = os.getenv("APPLE_KEY_ID", "")
+APPLE_PRIVATE_KEY = os.getenv("APPLE_PRIVATE_KEY", "")
+FACEBOOK_CLIENT_ID = os.getenv("FACEBOOK_CLIENT_ID", "")
+FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET", "")
 FOUNDER_PROFILES = [
     {
         "email": os.getenv("BRENT_OWNER_EMAIL", "shalanda.brent@gmail.com").strip().lower(),
-        "display_name": os.getenv("BRENT_OWNER_DISPLAY_NAME", "Shay / Brent & Co Founder"),
+        "full_name": os.getenv("BRENT_OWNER_FULL_NAME", "Shalanda Brent"),
+        "display_name": os.getenv("BRENT_OWNER_DISPLAY_NAME", "Shay"),
     },
     {
         "email": os.getenv("BRENT_COFOUNDER_EMAIL", "jerod.l.cotton@gmail.com").strip().lower(),
@@ -53,13 +62,23 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL UNIQUE,
                 password_hash TEXT NOT NULL,
+                full_name TEXT DEFAULT '',
                 display_name TEXT NOT NULL,
+                username TEXT DEFAULT '',
+                avatar_url TEXT DEFAULT '',
+                bio TEXT DEFAULT '',
+                city TEXT DEFAULT '',
+                state TEXT DEFAULT '',
+                country TEXT DEFAULT '',
                 brent_account_id TEXT DEFAULT '',
+                provider TEXT DEFAULT 'local',
+                provider_id TEXT DEFAULT '',
                 auth_provider TEXT DEFAULT 'local',
                 is_admin INTEGER DEFAULT 0,
                 is_founder INTEGER DEFAULT 0,
                 is_verified INTEGER DEFAULT 0,
-                created_at INTEGER NOT NULL
+                created_at INTEGER NOT NULL,
+                updated_at INTEGER DEFAULT 0
             )
             """
         )
@@ -77,11 +96,21 @@ def init_db():
             row["name"] for row in conn.execute("PRAGMA table_info(users)").fetchall()
         }
         for column, definition in {
+            "full_name": "TEXT DEFAULT ''",
+            "username": "TEXT DEFAULT ''",
+            "avatar_url": "TEXT DEFAULT ''",
+            "bio": "TEXT DEFAULT ''",
+            "city": "TEXT DEFAULT ''",
+            "state": "TEXT DEFAULT ''",
+            "country": "TEXT DEFAULT ''",
             "brent_account_id": "TEXT DEFAULT ''",
+            "provider": "TEXT DEFAULT 'local'",
+            "provider_id": "TEXT DEFAULT ''",
             "auth_provider": "TEXT DEFAULT 'local'",
             "is_admin": "INTEGER DEFAULT 0",
             "is_founder": "INTEGER DEFAULT 0",
             "is_verified": "INTEGER DEFAULT 0",
+            "updated_at": "INTEGER DEFAULT 0",
         }.items():
             if column not in existing_columns:
                 conn.execute(f"ALTER TABLE users ADD COLUMN {column} {definition}")
@@ -104,13 +133,26 @@ def official_badges(user):
     return list(dict.fromkeys(badges))
 
 
+def is_app_avatar(value):
+    normalized = (value or "").strip().lower()
+    return normalized in {"assets/logo.png", "assets/beu-logo.jpg", "assets/brent-co-logo.svg"}
+
+
 def apply_user_identity(community, user):
     current = community.setdefault("currentUser", {})
+    display_name = user["display_name"] or user["full_name"] or user["email"].split("@")[0]
+    current_avatar = current.get("avatar", "")
+    avatar_url = user["avatar_url"] or ("" if is_app_avatar(current_avatar) else current_avatar)
     current["id"] = f"user-{user['id']}"
     current["email"] = user["email"]
     current["brentAccountId"] = user["brent_account_id"] or brent_account_id(user["email"])
-    current["authProvider"] = user["auth_provider"] or AUTH_PROVIDER
-    current.setdefault("displayName", user["display_name"])
+    current["authProvider"] = user["auth_provider"] or user["provider"] or AUTH_PROVIDER
+    current["provider"] = user["provider"] or user["auth_provider"] or AUTH_PROVIDER
+    current["providerId"] = user["provider_id"] or ""
+    current["fullName"] = user["full_name"] or display_name
+    current.setdefault("displayName", display_name)
+    current["avatar"] = avatar_url
+    current["avatarUrl"] = avatar_url
     current["isAdmin"] = bool(user["is_admin"])
     current["isFounder"] = bool(user["is_founder"])
     current["verifiedUser"] = bool(user["is_verified"])
@@ -137,14 +179,18 @@ def seed_founder_profile():
                 conn.execute(
                     """
                     UPDATE users
-                    SET display_name = ?, brent_account_id = ?, auth_provider = ?,
-                        is_admin = 1, is_founder = 1, is_verified = 1
+                    SET full_name = ?, display_name = ?, brent_account_id = ?,
+                        provider = ?, auth_provider = ?, is_admin = 1,
+                        is_founder = 1, is_verified = 1, updated_at = ?
                     WHERE id = ?
                     """,
                     (
+                        founder["full_name"],
                         founder["display_name"],
                         brent_account_id(email),
                         OWNER_AUTH_PROVIDER,
+                        OWNER_AUTH_PROVIDER,
+                        int(time.time()),
                         existing["id"],
                     ),
                 )
@@ -152,17 +198,21 @@ def seed_founder_profile():
             cursor = conn.execute(
                 """
                 INSERT INTO users (
-                    email, password_hash, display_name, brent_account_id,
-                    auth_provider, is_admin, is_founder, is_verified, created_at
+                    email, password_hash, full_name, display_name, brent_account_id,
+                    provider, auth_provider, is_admin, is_founder, is_verified,
+                    created_at, updated_at
                 )
-                VALUES (?, ?, ?, ?, ?, 1, 1, 1, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1, 1, ?, ?)
                 """,
                 (
                     email,
                     generate_password_hash(OWNER_INITIAL_PASSWORD or secrets.token_urlsafe(32)),
+                    founder["full_name"],
                     founder["display_name"],
                     brent_account_id(email),
                     OWNER_AUTH_PROVIDER,
+                    OWNER_AUTH_PROVIDER,
+                    int(time.time()),
                     int(time.time()),
                 ),
             )
@@ -176,12 +226,25 @@ def seed_founder_profile():
 def public_user(user):
     if not user:
         return None
+    display_name = user["display_name"] or user["full_name"] or user["email"].split("@")[0]
+    initials = "".join(part[:1] for part in display_name.replace("/", " ").split()[:2]).upper() or "SB"
+    avatar_url = user["avatar_url"] or ""
     return {
         "id": user["id"],
         "email": user["email"],
-        "displayName": user["display_name"],
+        "fullName": user["full_name"] or display_name,
+        "displayName": display_name,
+        "username": user["username"] or "",
+        "avatarUrl": avatar_url,
+        "initials": initials,
+        "bio": user["bio"] or "",
+        "city": user["city"] or "",
+        "state": user["state"] or "",
+        "country": user["country"] or "",
         "brentAccountId": user["brent_account_id"] or brent_account_id(user["email"]),
-        "authProvider": user["auth_provider"] or AUTH_PROVIDER,
+        "provider": user["provider"] or user["auth_provider"] or AUTH_PROVIDER,
+        "providerId": user["provider_id"] or "",
+        "authProvider": user["auth_provider"] or user["provider"] or AUTH_PROVIDER,
         "isAdmin": bool(user["is_admin"]),
         "isFounder": bool(user["is_founder"]),
         "isVerified": bool(user["is_verified"]),
@@ -191,13 +254,17 @@ def public_user(user):
 
 def default_community(user):
     display_name = user["display_name"] if user else "BEU Member"
+    avatar_url = user["avatar_url"] if user else ""
     return {
         "currentUser": {
             "id": f"user-{user['id']}" if user else "guest",
             "email": user["email"] if user else "",
             "brentAccountId": user["brent_account_id"] or brent_account_id(user["email"]) if user else "",
             "authProvider": user["auth_provider"] or AUTH_PROVIDER if user else "",
-            "avatar": "assets/beu-logo.jpg",
+            "provider": user["provider"] or user["auth_provider"] or AUTH_PROVIDER if user else "",
+            "providerId": user["provider_id"] if user else "",
+            "avatar": avatar_url,
+            "avatarUrl": avatar_url,
             "displayName": display_name,
             "homeCity": "",
             "homeCountry": "",
@@ -286,10 +353,23 @@ def api_signup():
         try:
             cursor = conn.execute(
                 """
-                INSERT INTO users (email, password_hash, display_name, brent_account_id, auth_provider, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO users (
+                    email, password_hash, full_name, display_name, brent_account_id,
+                    provider, auth_provider, created_at, updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (email, generate_password_hash(password), display_name, brent_account_id(email), AUTH_PROVIDER, int(time.time())),
+                (
+                    email,
+                    generate_password_hash(password),
+                    display_name,
+                    display_name,
+                    brent_account_id(email),
+                    AUTH_PROVIDER,
+                    AUTH_PROVIDER,
+                    int(time.time()),
+                    int(time.time()),
+                ),
             )
         except sqlite3.IntegrityError:
             return jsonify({"error": "That email already has a BEU account."}), 409
@@ -317,8 +397,15 @@ def api_login():
     session["user_id"] = user["id"]
     with db() as conn:
         conn.execute(
-            "UPDATE users SET brent_account_id = COALESCE(NULLIF(brent_account_id, ''), ?), auth_provider = COALESCE(NULLIF(auth_provider, ''), ?) WHERE id = ?",
-            (brent_account_id(user["email"]), AUTH_PROVIDER, user["id"]),
+            """
+            UPDATE users
+            SET brent_account_id = COALESCE(NULLIF(brent_account_id, ''), ?),
+                provider = COALESCE(NULLIF(provider, ''), ?),
+                auth_provider = COALESCE(NULLIF(auth_provider, ''), ?),
+                updated_at = ?
+            WHERE id = ?
+            """,
+            (brent_account_id(user["email"]), AUTH_PROVIDER, AUTH_PROVIDER, int(time.time()), user["id"]),
         )
     return jsonify({"user": public_user(user), "community": get_community(user)})
 
@@ -346,10 +433,27 @@ def api_save_community():
     current["id"] = f"user-{user['id']}"
     current["email"] = user["email"]
     current["brentAccountId"] = user["brent_account_id"] or brent_account_id(user["email"])
-    current["authProvider"] = user["auth_provider"] or AUTH_PROVIDER
+    current["authProvider"] = user["auth_provider"] or user["provider"] or AUTH_PROVIDER
     community = apply_user_identity(community, user)
     with db() as conn:
-        conn.execute("UPDATE users SET display_name = ? WHERE id = ?", (display_name, user["id"]))
+        conn.execute(
+            """
+            UPDATE users
+            SET display_name = ?, full_name = COALESCE(NULLIF(full_name, ''), ?),
+                avatar_url = ?, bio = ?, city = ?, country = ?, updated_at = ?
+            WHERE id = ?
+            """,
+            (
+                display_name,
+                display_name,
+                current.get("avatar") or "",
+                current.get("bio") or "",
+                current.get("homeCity") or "",
+                current.get("homeCountry") or "",
+                int(time.time()),
+                user["id"],
+            ),
+        )
         conn.execute(
             """
             INSERT INTO beu_profiles (user_id, community_json, updated_at)
@@ -377,6 +481,10 @@ def api_profile_photo():
     community.setdefault("currentUser", {})
     community["currentUser"]["avatar"] = avatar_url
     with db() as conn:
+        conn.execute(
+            "UPDATE users SET avatar_url = ?, updated_at = ? WHERE id = ?",
+            (avatar_url, int(time.time()), user["id"]),
+        )
         conn.execute(
             """
             INSERT INTO beu_profiles (user_id, community_json, updated_at)
@@ -411,14 +519,26 @@ def api_nearby():
     try:
         lat = float(request.args.get("lat", ""))
         lng = float(request.args.get("lng", ""))
-    except ValueError:
+    except (TypeError, ValueError):
         return jsonify({"error": "Latitude and longitude are required."}), 400
 
-    radius = min(max(float(request.args.get("radius", "25")), 1), 100)
+    if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+        return jsonify({"error": "Latitude or longitude is outside the valid range."}), 400
+
+    try:
+        radius = min(max(float(request.args.get("radius", "25")), 1), 100)
+    except (TypeError, ValueError):
+        radius = 25
+
     database = load_beu_database()
     listings = []
     for listing in database.get("listings", []):
-        distance = haversine_miles(lat, lng, float(listing["lat"]), float(listing["lng"]))
+        try:
+            listing_lat = float(listing.get("lat"))
+            listing_lng = float(listing.get("lng"))
+        except (TypeError, ValueError):
+            continue
+        distance = haversine_miles(lat, lng, listing_lat, listing_lng)
         if distance <= radius:
             listings.append({**listing, "distanceMiles": round(distance, 2), "source": "curated"})
     listings.sort(key=lambda item: (not item.get("verified", False), item["distanceMiles"], item["name"]))
@@ -431,6 +551,9 @@ def api_nearby():
         "provider": PLACES_PROVIDER,
         "providerReady": bool(os.getenv("GOOGLE_PLACES_API_KEY") or os.getenv("FOURSQUARE_API_KEY") or os.getenv("YELP_API_KEY")),
         "message": provider_note,
+        "origin": {"lat": lat, "lng": lng},
+        "radiusMiles": radius,
+        "count": len(listings),
         "listings": listings,
     })
 

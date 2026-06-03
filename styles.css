@@ -447,6 +447,46 @@ button.small-button,
   box-shadow: none;
 }
 
+.profile-avatar,
+.initials-avatar {
+  width: 76px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid rgba(212, 175, 55, 0.46);
+  object-fit: cover;
+  box-shadow: 0 12px 30px rgba(7, 18, 38, 0.18);
+}
+
+.initials-avatar {
+  display: grid;
+  place-items: center;
+  color: #071226;
+  background:
+    radial-gradient(circle at 28% 24%, rgba(212, 175, 55, 0.46), transparent 38%),
+    #f7fbff;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.oauth-prep {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.oauth-prep button {
+  min-height: 2.8rem;
+  border: 1px solid rgba(13, 54, 88, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  color: #0b2440;
+  font-weight: 900;
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
 @keyframes beuFloat {
   0%,
   100% {
@@ -3186,4 +3226,93 @@ body {
 .direct-link-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--bc-shadow);
+}
+/* Final BEU cleanup guard: premium contrast, readable cards, and profile avatars. */
+.beu-premium-hero,
+.compass-experience {
+  color: #f7fbff;
+}
+
+.beu-premium-section,
+.beu-controls,
+.beu-results,
+.beu-trust,
+.beu-map-strip {
+  color: #0b2440;
+}
+
+.beu-premium-section h2,
+.beu-controls h2,
+.beu-results h2,
+.beu-profile-card h2,
+.beu-result-card h3,
+.beu-card h3,
+.beu-map-strip h2 {
+  color: #0b2440;
+}
+
+.beu-premium-section p,
+.beu-controls p,
+.beu-results p,
+.beu-profile-card p,
+.beu-result-card p,
+.beu-card p,
+.beu-map-strip p {
+  color: rgba(11, 36, 64, 0.76);
+}
+
+.compass-experience h2,
+.compass-experience h3,
+.compass-experience p,
+.premium-compass-card h3,
+.premium-compass-card p {
+  color: #f7fbff;
+}
+
+.beu-profile-card,
+.beu-result-card,
+.beu-card,
+.beu-event-card,
+.beu-destination-card,
+.beu-discovery-card,
+.beu-food-grid article,
+.beu-event-premium-grid article {
+  border-color: rgba(13, 54, 88, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.provider-note {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 0.7rem;
+  padding: 0.62rem 0.82rem;
+  border: 1px solid rgba(13, 54, 88, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #31526f !important;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.beu-profile-head .profile-avatar,
+.beu-profile-head .initials-avatar {
+  flex: 0 0 auto;
+  width: 74px;
+}
+
+@media (max-width: 640px) {
+  .beu-hero-overlay h1 {
+    font-size: clamp(2.35rem, 15vw, 4.4rem);
+  }
+
+  .beu-journey-search,
+  .beu-control-grid,
+  .oauth-prep {
+    grid-template-columns: 1fr;
+  }
+
+  .provider-note {
+    width: 100%;
+    border-radius: 18px;
+  }
 }

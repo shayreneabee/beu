@@ -1038,6 +1038,7 @@ function renderBeuHome() {
         <p class="eyebrow">Location-aware discovery</p>
         <h2>Find Black-owned and Black-centered culture in ${activeLocation}</h2>
         <p>${beuState.status}</p>
+        ${beuState.providerMessage ? `<p class="provider-note">${escapeHTML(beuState.providerMessage)}</p>` : ""}
       </div>
       <div class="beu-control-grid">
         <button class="small-button" data-beu-location>Use My Location</button>
@@ -1098,7 +1099,7 @@ function beuProfilePanel() {
   return `
     <article class="beu-profile-card">
       <div class="beu-profile-head">
-        <img src="${user.avatar || "assets/logo.png"}" alt="" />
+        ${accountAvatar(user)}
         <div>
           <p class="eyebrow">Community profile</p>
           <h2>${escapeHTML(user.displayName || "BEU Member")}</h2>
@@ -1475,6 +1476,13 @@ function renderBeuProfile() {
             <input name="password" type="password" placeholder="Password" required />
             <button class="small-button secondary" type="submit">Log In</button>
           </form>
+          <div class="oauth-prep">
+            <p class="eyebrow">Future social login</p>
+            <button type="button" disabled>Continue with Google <span>Coming soon</span></button>
+            <button type="button" disabled>Continue with Apple <span>Coming soon</span></button>
+            <button type="button" disabled>Continue with Email</button>
+            <button type="button" disabled>Facebook later</button>
+          </div>
         `}
       </article>
       ${beuProfilePanel()}
@@ -2023,6 +2031,10 @@ function handleSearch(event) {
       tag: document.querySelector("#beuTag")?.value || "all",
       country: document.querySelector("#beuCountryFilter")?.value || beuState.country || "all"
     };
+    if (beuState.origin && event.target.id === "beuRadius") {
+      refreshBeuNearby(beuState.origin);
+      return;
+    }
     renderBeuHome();
     return;
   }
@@ -2167,6 +2179,7 @@ function requestBeuLocation() {
 }
 
 async function refreshBeuNearby(origin) {
+  const localMatches = nearbyCuratedListings(origin);
   try {
     const params = new URLSearchParams({
       lat: String(origin.lat),
@@ -2181,16 +2194,33 @@ async function refreshBeuNearby(origin) {
       const byId = new Map(beuListings.map((listing) => [listing.id, listing]));
       payload.listings.forEach((listing) => byId.set(listing.id, { ...byId.get(listing.id), ...listing }));
       beuListings = [...byId.values()];
+    } else if (localMatches.length) {
+      const byId = new Map(beuListings.map((listing) => [listing.id, listing]));
+      localMatches.forEach((listing) => byId.set(listing.id, { ...byId.get(listing.id), ...listing }));
+      beuListings = [...byId.values()];
     }
 
+    const count = payload.listings?.length || localMatches.length;
     beuState = {
       ...beuState,
       providerMessage: payload.message || "",
-      status: payload.listings?.length
-        ? `Showing ${payload.listings.length} nearby BEU result${payload.listings.length === 1 ? "" : "s"} from ${payload.provider || "curated"} data.`
+      status: count
+        ? `Showing ${count} nearby BEU result${count === 1 ? "" : "s"} from ${payload.provider || "curated"} data.`
         : payload.message || "No nearby BEU matches yet. Try a wider radius or manual city search."
     };
   } catch (error) {
+    if (localMatches.length) {
+      const byId = new Map(beuListings.map((listing) => [listing.id, listing]));
+      localMatches.forEach((listing) => byId.set(listing.id, { ...byId.get(listing.id), ...listing }));
+      beuListings = [...byId.values()];
+      beuState = {
+        ...beuState,
+        providerMessage: "Using local curated BEU data because the protected nearby endpoint is unavailable.",
+        status: `Showing ${localMatches.length} curated nearby BEU result${localMatches.length === 1 ? "" : "s"} from local data.`
+      };
+      renderBeuHome();
+      return;
+    }
     beuState = {
       ...beuState,
       providerMessage: "Nearby provider check failed safely.",
@@ -2198,6 +2228,22 @@ async function refreshBeuNearby(origin) {
     };
   }
   renderBeuHome();
+}
+
+function nearbyCuratedListings(origin) {
+  const service = window.BEUSearchService;
+  if (!service || !origin) return [];
+  return beuListings
+    .map((listing) => ({
+      ...listing,
+      distanceMiles: service.haversineMiles(origin, listing),
+      source: "curated-local"
+    }))
+    .filter((listing) => Number.isFinite(listing.distanceMiles) && listing.distanceMiles <= (beuState.radiusMiles || 25))
+    .sort((a, b) => {
+      if (a.verified !== b.verified) return a.verified ? -1 : 1;
+      return a.distanceMiles - b.distanceMiles || a.name.localeCompare(b.name);
+    });
 }
 
 function searchBeuCity() {
@@ -2232,9 +2278,10 @@ function searchBeuCity() {
     selectedCity: city.id,
     origin: { lat: city.lat, lng: city.lng, label: city.label },
     locationLabel: city.label,
-    status: `Showing BEU sample listings near ${city.label}.`
+    status: `Checking nearby BEU listings near ${city.label}.`
   };
   renderBeuHome();
+  refreshBeuNearby(beuState.origin);
 }
 
 function updateBeuCountry(country) {
@@ -2308,7 +2355,8 @@ async function handleSubmit(event) {
     }
     beuCommunity.currentUser = {
       ...(beuCommunity.currentUser || {}),
-      avatar: formData.get("avatar")?.toString().trim() || "assets/logo.png",
+      avatar: cleanAvatarUrl(formData.get("avatar")?.toString().trim() || ""),
+      avatarUrl: cleanAvatarUrl(formData.get("avatar")?.toString().trim() || ""),
       displayName: formData.get("displayName")?.toString().trim() || "BEU Member",
       homeCity: formData.get("homeCity")?.toString().trim() || "",
       homeCountry: formData.get("homeCountry")?.toString().trim() || "",
@@ -2460,7 +2508,25 @@ function readJSON(key, fallback) {
 }
 
 function escapeHTML(value) {
-  return value.toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+  return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+}
+
+function userInitials(user = {}) {
+  const name = user.displayName || user.fullName || user.email || "SB";
+  return name.replace("/", " ").split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "SB";
+}
+
+function accountAvatar(user = {}, className = "profile-avatar") {
+  const src = cleanAvatarUrl(user.avatarUrl || user.avatar || "");
+  return src
+    ? `<img class="${className}" src="${escapeHTML(src)}" alt="${escapeHTML(user.displayName || "Profile picture")}" />`
+    : `<div class="${className} initials-avatar" aria-label="${escapeHTML(user.displayName || "Profile")}">${escapeHTML(user.initials || userInitials(user))}</div>`;
+}
+
+function cleanAvatarUrl(src = "") {
+  const normalized = String(src || "").trim();
+  const lower = normalized.toLowerCase();
+  return ["assets/logo.png", "assets/beu-logo.jpg", "assets/brent-co-logo.svg"].includes(lower) ? "" : normalized;
 }
 
 Promise.all([loadBeuDatabase(), loadBeuCommunity(), loadRecipeDatabase()]).finally(render);
