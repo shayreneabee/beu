@@ -476,13 +476,21 @@ button.small-button,
   margin-top: 1rem;
 }
 
-.oauth-prep button {
+.oauth-prep button,
+.oauth-prep a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2.8rem;
   border: 1px solid rgba(13, 54, 88, 0.16);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.76);
   color: #0b2440;
   font-weight: 900;
+  text-decoration: none;
+}
+
+.oauth-prep button {
   cursor: not-allowed;
   opacity: 0.72;
 }

@@ -1,13 +1,17 @@
 import json
 import hashlib
+import base64
+import hmac
+import json
 import math
 import os
 import secrets
 import sqlite3
 import time
 from pathlib import Path
+from urllib.parse import urlencode
 
-from flask import Flask, jsonify, request, send_from_directory, session
+from flask import Flask, jsonify, redirect, request, send_from_directory, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -33,6 +37,9 @@ APPLE_KEY_ID = os.getenv("APPLE_KEY_ID", "")
 APPLE_PRIVATE_KEY = os.getenv("APPLE_PRIVATE_KEY", "")
 FACEBOOK_CLIENT_ID = os.getenv("FACEBOOK_CLIENT_ID", "")
 FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET", "")
+SSO_SHARED_SECRET = os.getenv("SSO_SHARED_SECRET", "dev-sso-change-me")
+BRENT_SSO_URL = os.getenv("BRENT_SSO_URL", "https://findthebeatmusic.com/sso/start")
+BEU_URL = os.getenv("BEU_URL", "https://beutravel.org/")
 FOUNDER_PROFILES = [
     {
         "email": os.getenv("BRENT_OWNER_EMAIL", "shalanda.brent@gmail.com").strip().lower(),
@@ -74,10 +81,13 @@ def init_db():
                 provider TEXT DEFAULT 'local',
                 provider_id TEXT DEFAULT '',
                 auth_provider TEXT DEFAULT 'local',
+                authentication_provider TEXT DEFAULT 'local',
+                profile_photo TEXT DEFAULT '',
                 is_admin INTEGER DEFAULT 0,
                 is_founder INTEGER DEFAULT 0,
                 is_verified INTEGER DEFAULT 0,
                 created_at INTEGER NOT NULL,
+                last_login_at INTEGER DEFAULT 0,
                 updated_at INTEGER DEFAULT 0
             )
             """
@@ -87,6 +97,18 @@ def init_db():
             CREATE TABLE IF NOT EXISTS beu_profiles (
                 user_id INTEGER PRIMARY KEY,
                 community_json TEXT NOT NULL,
+                updated_at INTEGER NOT NULL,
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS travel_profiles (
+                user_id INTEGER PRIMARY KEY,
+                travel_interests TEXT DEFAULT '',
+                preferences_json TEXT DEFAULT '{}',
+                created_at INTEGER NOT NULL,
                 updated_at INTEGER NOT NULL,
                 FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
             )
@@ -107,9 +129,12 @@ def init_db():
             "provider": "TEXT DEFAULT 'local'",
             "provider_id": "TEXT DEFAULT ''",
             "auth_provider": "TEXT DEFAULT 'local'",
+            "authentication_provider": "TEXT DEFAULT 'local'",
+            "profile_photo": "TEXT DEFAULT ''",
             "is_admin": "INTEGER DEFAULT 0",
             "is_founder": "INTEGER DEFAULT 0",
             "is_verified": "INTEGER DEFAULT 0",
+            "last_login_at": "INTEGER DEFAULT 0",
             "updated_at": "INTEGER DEFAULT 0",
         }.items():
             if column not in existing_columns:
@@ -120,6 +145,122 @@ def brent_account_id(email):
     normalized = (email or "").strip().lower()
     digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:24]
     return f"brent-local-{digest}"
+
+
+def sso_b64decode(value):
+    padding = "=" * (-len(value) % 4)
+    return base64.urlsafe_b64decode((value + padding).encode("utf-8"))
+
+
+def verify_sso_token(token):
+    try:
+        body, signature = token.split(".", 1)
+        expected = hmac.new(
+            SSO_SHARED_SECRET.encode("utf-8"),
+            body.encode("utf-8"),
+            hashlib.sha256,
+        ).digest()
+        if not hmac.compare_digest(sso_b64decode(signature), expected):
+            return None
+        payload = json.loads(sso_b64decode(body).decode("utf-8"))
+    except (ValueError, json.JSONDecodeError, TypeError):
+        return None
+    if payload.get("aud") != "beu" or int(payload.get("exp", 0)) < int(time.time()):
+        return None
+    return payload
+
+
+def ensure_travel_profile(conn, user_id):
+    now = int(time.time())
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO travel_profiles (user_id, created_at, updated_at)
+        VALUES (?, ?, ?)
+        """,
+        (user_id, now, now),
+    )
+
+
+def upsert_sso_user(payload):
+    email = (payload.get("email") or "").strip().lower()
+    if not email:
+        raise ValueError("Brent SSO did not include an email address.")
+    display_name = (payload.get("display_name") or "").strip() or email.split("@")[0]
+    profile_photo = (payload.get("profile_photo") or "").strip()
+    provider = (payload.get("authentication_provider") or "brent-sso").strip()
+    now = int(time.time())
+    with db() as conn:
+        row = conn.execute("SELECT * FROM users WHERE lower(email) = lower(?)", (email,)).fetchone()
+        if row:
+            conn.execute(
+                """
+                UPDATE users
+                SET full_name = COALESCE(NULLIF(full_name, ''), ?),
+                    display_name = COALESCE(NULLIF(display_name, ''), ?),
+                    avatar_url = COALESCE(NULLIF(avatar_url, ''), ?),
+                    profile_photo = COALESCE(NULLIF(profile_photo, ''), ?),
+                    brent_account_id = COALESCE(NULLIF(brent_account_id, ''), ?),
+                    provider = ?, auth_provider = ?, authentication_provider = ?,
+                    is_admin = MAX(is_admin, ?), is_founder = MAX(is_founder, ?),
+                    is_verified = MAX(is_verified, ?),
+                    last_login_at = ?, updated_at = ?
+                WHERE id = ?
+                """,
+                (
+                    display_name,
+                    display_name,
+                    profile_photo,
+                    profile_photo,
+                    payload.get("sub") or brent_account_id(email),
+                    provider,
+                    provider,
+                    provider,
+                    1 if payload.get("is_admin") else 0,
+                    1 if payload.get("is_founder") else 0,
+                    1 if payload.get("is_founder") else 0,
+                    now,
+                    now,
+                    row["id"],
+                ),
+            )
+            user_id = row["id"]
+        else:
+            cursor = conn.execute(
+                """
+                INSERT INTO users (
+                    email, password_hash, full_name, display_name, avatar_url, profile_photo,
+                    brent_account_id, provider, auth_provider, authentication_provider,
+                    is_admin, is_founder, is_verified, created_at, last_login_at, updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    email,
+                    generate_password_hash(secrets.token_urlsafe(32)),
+                    display_name,
+                    display_name,
+                    profile_photo,
+                    profile_photo,
+                    payload.get("sub") or brent_account_id(email),
+                    provider,
+                    provider,
+                    provider,
+                    1 if payload.get("is_admin") else 0,
+                    1 if payload.get("is_founder") else 0,
+                    1 if payload.get("is_founder") else 0,
+                    now,
+                    now,
+                    now,
+                ),
+            )
+            user_id = cursor.lastrowid
+        ensure_travel_profile(conn, user_id)
+        community = default_community(conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone())
+        conn.execute(
+            "INSERT OR IGNORE INTO beu_profiles (user_id, community_json, updated_at) VALUES (?, ?, ?)",
+            (user_id, json.dumps(community), now),
+        )
+        return conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
 
 
 def official_badges(user):
@@ -142,7 +283,7 @@ def apply_user_identity(community, user):
     current = community.setdefault("currentUser", {})
     display_name = user["display_name"] or user["full_name"] or user["email"].split("@")[0]
     current_avatar = current.get("avatar", "")
-    avatar_url = user["avatar_url"] or ("" if is_app_avatar(current_avatar) else current_avatar)
+    avatar_url = user["avatar_url"] or user["profile_photo"] or ("" if is_app_avatar(current_avatar) else current_avatar)
     current["id"] = f"user-{user['id']}"
     current["email"] = user["email"]
     current["brentAccountId"] = user["brent_account_id"] or brent_account_id(user["email"])
@@ -171,6 +312,8 @@ def seed_founder_profile():
             email = founder["email"]
             if not email:
                 continue
+            founder_display_name = founder.get("display_name") or email.split("@")[0]
+            founder_full_name = founder.get("full_name") or founder_display_name
             existing = conn.execute(
                 "SELECT * FROM users WHERE lower(email) = lower(?)",
                 (email,),
@@ -185,8 +328,8 @@ def seed_founder_profile():
                     WHERE id = ?
                     """,
                     (
-                        founder["full_name"],
-                        founder["display_name"],
+                        founder_full_name,
+                        founder_display_name,
                         brent_account_id(email),
                         OWNER_AUTH_PROVIDER,
                         OWNER_AUTH_PROVIDER,
@@ -207,8 +350,8 @@ def seed_founder_profile():
                 (
                     email,
                     generate_password_hash(OWNER_INITIAL_PASSWORD or secrets.token_urlsafe(32)),
-                    founder["full_name"],
-                    founder["display_name"],
+                    founder_full_name,
+                    founder_display_name,
                     brent_account_id(email),
                     OWNER_AUTH_PROVIDER,
                     OWNER_AUTH_PROVIDER,
@@ -228,7 +371,7 @@ def public_user(user):
         return None
     display_name = user["display_name"] or user["full_name"] or user["email"].split("@")[0]
     initials = "".join(part[:1] for part in display_name.replace("/", " ").split()[:2]).upper() or "SB"
-    avatar_url = user["avatar_url"] or ""
+    avatar_url = user["avatar_url"] or user["profile_photo"] or ""
     return {
         "id": user["id"],
         "email": user["email"],
@@ -254,7 +397,7 @@ def public_user(user):
 
 def default_community(user):
     display_name = user["display_name"] if user else "BEU Member"
-    avatar_url = user["avatar_url"] if user else ""
+    avatar_url = (user["avatar_url"] or user["profile_photo"]) if user else ""
     return {
         "currentUser": {
             "id": f"user-{user['id']}" if user else "guest",
@@ -331,6 +474,24 @@ def ensure_database():
     seed_founder_profile()
 
 
+@app.get("/sso/login")
+def sso_login():
+    next_path = request.args.get("next") or "/#beu-profile"
+    query = urlencode({"app": "beu", "next": next_path})
+    return redirect(f"{BRENT_SSO_URL}?{query}")
+
+
+@app.get("/sso/consume")
+def sso_consume():
+    payload = verify_sso_token(request.args.get("token", ""))
+    if not payload:
+        return "That Brent & Co sign-in link expired. Please try again.", 400
+    user = upsert_sso_user(payload)
+    session.clear()
+    session["user_id"] = user["id"]
+    return redirect(request.args.get("next") or "/#beu-profile")
+
+
 @app.get("/api/beu/session")
 def api_session():
     user = current_user()
@@ -355,9 +516,9 @@ def api_signup():
                 """
                 INSERT INTO users (
                     email, password_hash, full_name, display_name, brent_account_id,
-                    provider, auth_provider, created_at, updated_at
+                    provider, auth_provider, authentication_provider, created_at, last_login_at, updated_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     email,
@@ -367,6 +528,8 @@ def api_signup():
                     brent_account_id(email),
                     AUTH_PROVIDER,
                     AUTH_PROVIDER,
+                    AUTH_PROVIDER,
+                    int(time.time()),
                     int(time.time()),
                     int(time.time()),
                 ),
@@ -381,6 +544,7 @@ def api_signup():
             "INSERT INTO beu_profiles (user_id, community_json, updated_at) VALUES (?, ?, ?)",
             (user["id"], json.dumps(community), int(time.time())),
         )
+        ensure_travel_profile(conn, user["id"])
     return jsonify({"user": public_user(user), "community": community})
 
 
@@ -402,11 +566,22 @@ def api_login():
             SET brent_account_id = COALESCE(NULLIF(brent_account_id, ''), ?),
                 provider = COALESCE(NULLIF(provider, ''), ?),
                 auth_provider = COALESCE(NULLIF(auth_provider, ''), ?),
+                authentication_provider = COALESCE(NULLIF(authentication_provider, ''), ?),
+                last_login_at = ?,
                 updated_at = ?
             WHERE id = ?
             """,
-            (brent_account_id(user["email"]), AUTH_PROVIDER, AUTH_PROVIDER, int(time.time()), user["id"]),
+            (
+                brent_account_id(user["email"]),
+                AUTH_PROVIDER,
+                AUTH_PROVIDER,
+                AUTH_PROVIDER,
+                int(time.time()),
+                int(time.time()),
+                user["id"],
+            ),
         )
+        ensure_travel_profile(conn, user["id"])
     return jsonify({"user": public_user(user), "community": get_community(user)})
 
 

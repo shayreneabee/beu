@@ -1420,11 +1420,18 @@ function renderBeuSignupLanding() {
         <p>Your BEU account is separate and can later opt into Brent & Co. shared sign-on if that becomes useful.</p>
         ${beuSession.status ? `<div class="empty-state">${escapeHTML(beuSession.status)}</div>` : ""}
         <form class="beu-form" data-beu-signup-form>
-          <input name="displayName" placeholder="Display name" required />
           <input name="email" type="email" placeholder="Email" required />
           <input name="password" type="password" placeholder="Password, 8 characters minimum" required minlength="8" />
+          <p class="location-helper">Create your account first. City, travel interests, and saved places can come later.</p>
           <button class="small-button" type="submit">Create BEU Account</button>
         </form>
+        <div class="oauth-prep">
+          <p class="eyebrow">Brent & Co single sign-on</p>
+          <a class="small-button" href="/sso/login?next=/#beu-profile">Continue with Google</a>
+          <a class="small-button secondary" href="/sso/login?next=/#beu-profile">Continue with Apple</a>
+          <button class="small-button secondary" type="button" disabled>Continue with Facebook</button>
+          <a class="small-button secondary" href="/sso/login?next=/#beu-profile">Continue with Brent Account</a>
+        </div>
       </article>
       <article class="beu-profile-card">
         <p class="eyebrow">Why join?</p>
@@ -1466,9 +1473,9 @@ function renderBeuProfile() {
           </form>
         ` : `
           <form class="beu-form" data-beu-signup-form>
-            <input name="displayName" value="${escapeHTML(user.displayName || "")}" placeholder="Display name" required />
             <input name="email" type="email" value="${escapeHTML(user.email || "")}" placeholder="Email" required />
             <input name="password" type="password" placeholder="Password, 8 characters minimum" required minlength="8" />
+            <p class="location-helper">Create your account first. City, travel interests, and saved places can come later.</p>
             <button class="small-button" type="submit">Create BEU Account</button>
           </form>
           <form class="beu-form" data-beu-login-form>
@@ -1477,11 +1484,11 @@ function renderBeuProfile() {
             <button class="small-button secondary" type="submit">Log In</button>
           </form>
           <div class="oauth-prep">
-            <p class="eyebrow">Future social login</p>
-            <button type="button" disabled>Continue with Google <span>Coming soon</span></button>
-            <button type="button" disabled>Continue with Apple <span>Coming soon</span></button>
-            <button type="button" disabled>Continue with Email</button>
-            <button type="button" disabled>Facebook later</button>
+            <p class="eyebrow">Brent & Co single sign-on</p>
+            <a class="small-button" href="/sso/login?next=/#beu-profile">Continue with Google</a>
+            <a class="small-button secondary" href="/sso/login?next=/#beu-profile">Continue with Apple</a>
+            <button class="small-button secondary" type="button" disabled>Continue with Facebook</button>
+            <a class="small-button secondary" href="/sso/login?next=/#beu-profile">Continue with Brent Account</a>
           </div>
         `}
       </article>
