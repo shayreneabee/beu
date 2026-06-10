@@ -1,15 +1,13 @@
-# BEU Founder Profiles
+# BEU Founder Profile
 
 BEU is an active standalone app with its own domain, branding, deployment, database path, and future app-store/PWA path. It remains connected to Brent & Co as part of the larger ecosystem, but it does not depend on Brent & Co to function.
 
-Protected founder/admin profiles:
+Protected founder/admin profile:
 
 - Email: shalanda.brent@gmail.com
   Display name: Shay / Brent & Co Founder
-- Email: jerod.l.cotton@gmail.com
-  Display name: Jerod / Brent & Co Founder
 
-For both profiles:
+For this profile:
 
 - Role: admin
 - Founder: true
