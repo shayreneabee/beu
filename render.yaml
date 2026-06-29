@@ -13,6 +13,14 @@ services:
         value: /data/instance/beu.sqlite
       - key: UPLOAD_DIR
         value: /data/uploads
+      - key: SESSION_COOKIE_SECURE
+        value: "1"
+      - key: SESSION_COOKIE_SAMESITE
+        value: Lax
+      - key: BRENT_SSO_URL
+        value: https://www.brentandco.org/sso/start
+      - key: SSO_SHARED_SECRET
+        sync: false
     disk:
       name: beu-data
       mountPath: /data

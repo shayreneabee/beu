@@ -25,6 +25,11 @@ ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
 app = Flask(__name__, static_folder=None)
 app.secret_key = os.getenv("SECRET_KEY", "dev-beu-change-me")
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE=os.getenv("SESSION_COOKIE_SAMESITE", "Lax"),
+    SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "1").strip().lower() in {"1", "true", "yes", "on"},
+)
 AUTH_PROVIDER = os.getenv("BRENT_AUTH_PROVIDER", "local")
 PLACES_PROVIDER = os.getenv("BEU_PLACES_PROVIDER", "curated").lower()
 OWNER_AUTH_PROVIDER = os.getenv("BRENT_OWNER_AUTH_PROVIDER", "brent-core")
@@ -38,7 +43,7 @@ APPLE_PRIVATE_KEY = os.getenv("APPLE_PRIVATE_KEY", "")
 FACEBOOK_CLIENT_ID = os.getenv("FACEBOOK_CLIENT_ID", "")
 FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET", "")
 SSO_SHARED_SECRET = os.getenv("SSO_SHARED_SECRET", "dev-sso-change-me")
-BRENT_SSO_URL = os.getenv("BRENT_SSO_URL", "https://findthebeatmusic.com/sso/start")
+BRENT_SSO_URL = os.getenv("BRENT_SSO_URL", "https://www.brentandco.org/sso/start")
 BEU_URL = os.getenv("BEU_URL", "https://beutravel.org/")
 FOUNDER_PROFILES = [
     {
